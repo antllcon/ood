@@ -14,7 +14,6 @@ public:
 	MOCK_METHOD(void, Dance, (), (override));
 };
 
-// TODO: можно ли лучше?
 class MockDuck : public Duck
 {
 public:
@@ -28,7 +27,7 @@ public:
 	MOCK_METHOD(void, Display, (), (const, override));
 };
 
-TEST(DanceMockTest, CheckCall)
+TEST(DanceMockTest, CheckCallDance)
 {
 	auto mockDanceBehavior = std::make_unique<MockDanceBehavior>();
 	MockDanceBehavior* mockPtr = mockDanceBehavior.get();
