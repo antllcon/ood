@@ -1,6 +1,8 @@
 # Папки IDE
 .idea/
 .vscode/
+.vs/
+out/
 
 # Папка сборки
 cmake-build-*/
