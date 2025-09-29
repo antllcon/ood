@@ -1,19 +1,16 @@
 #ifndef RUBBERDUCK_H
 #define RUBBERDUCK_H
 
+#include "Behavior/IDanceBehavior.h"
+#include "Behavior/IFlyBehavior.h"
+#include "Behavior/IQuackBehavior.h"
 #include "Duck.h"
-#include "Dance/DanceNoWay.h"
-#include "Fly/FlyNoWay.h"
-#include "Quack/SoundSqueak.h"
 
-class FlyNoWay;
 class RubberDuck : public Duck
 {
 public:
 	RubberDuck()
-		: Duck(std::make_unique<FlyNoWay>(),
-			  std::make_unique<SoundSqueak>(),
-			  std::make_unique<DanceNoWay>())
+		: Duck(CreateFlyNoWay(), CreateSqueak(), CreateDanceNoWay())
 	{
 	}
 

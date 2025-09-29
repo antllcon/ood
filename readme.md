@@ -4,4 +4,5 @@
 
 ### Полезные ссылки
 
-[Курс по предмету](https://github.com/alexey-malov/ood)
+- [Курс (лабы и темы)](https://github.com/alexey-malov/ood)
+- [Баллы](https://docs.google.com/spreadsheets/d/1hMie8Z4nUiXir7ywDavxvHXc6KnLnZC2GzqIRABWbc0/edit?gid=0#gid=0)
