@@ -3,7 +3,7 @@
 #include "Observer.h"
 #include <algorithm>
 #include <iostream>
-#include <numeric>
+#include <limits>
 
 struct SWeatherInfo
 {
@@ -12,15 +12,61 @@ struct SWeatherInfo
 	double pressure = 0;
 };
 
+class CStatsCounter final
+{
+public:
+	void Update(double value)
+	{
+		if (m_min > value)
+		{
+			m_min = value;
+		}
+		if (m_max < value)
+		{
+			m_max = value;
+		}
+
+		m_acc += value;
+		++m_count;
+	}
+
+	double GetMin() const
+	{
+		return m_min;
+	}
+
+	double GetMax() const
+	{
+		return m_max;
+	}
+
+	double GetAverage() const
+	{
+		if (m_count != 0)
+		{
+			return m_acc / m_count;
+		}
+
+		return 0;
+	}
+
+private:
+	double m_min = std::numeric_limits<double>::infinity();
+	double m_max = -std::numeric_limits<double>::infinity();
+	double m_acc = 0;
+	unsigned m_count = 0;
+};
+
 class CDisplay final : public IObserver<SWeatherInfo>
 {
 private:
 	void Update(SWeatherInfo const& data) override
 	{
+		std::cout << "============" << std::endl;
+
 		std::cout << "Current Temp " << data.temperature << std::endl;
 		std::cout << "Current Hum " << data.humidity << std::endl;
 		std::cout << "Current Pressure " << data.pressure << std::endl;
-		std::cout << "----------------" << std::endl;
 	}
 };
 
@@ -29,42 +75,48 @@ class CStatsDisplay final : public IObserver<SWeatherInfo>
 private:
 	void Update(SWeatherInfo const& data) override
 	{
-		if (m_minTemperature > data.temperature)
-		{
-			m_minTemperature = data.temperature;
-		}
-		if (m_maxTemperature < data.temperature)
-		{
-			m_maxTemperature = data.temperature;
-		}
-		m_accTemperature += data.temperature;
-		++m_countAcc;
+		m_temperature.Update(data.temperature);
+		m_humidity.Update(data.humidity);
+		m_pressure.Update(data.pressure);
 
-		std::cout << "Max Temp " << m_maxTemperature << std::endl;
-		std::cout << "Min Temp " << m_minTemperature << std::endl;
-		std::cout << "Average Temp " << (m_accTemperature / m_countAcc) << std::endl;
-		std::cout << "----------------" << std::endl;
+		std::cout << "============" << std::endl;
+
+		std::cout << "Temperature: " << std::endl
+				  << "max = " << m_temperature.GetMax() << std::endl
+				  << "min = " << m_temperature.GetMin() << std::endl
+				  << "avg = " << m_temperature.GetAverage() << std::endl
+				  << std::endl;
+
+		std::cout << "Humidity: " << std::endl
+				  << "max = " << m_humidity.GetMax() << std::endl
+				  << "min = " << m_humidity.GetMin() << std::endl
+				  << "avg = " << m_humidity.GetAverage() << std::endl
+				  << std::endl;
+
+		std::cout << "Pressure: " << std::endl
+				  << "max = " << m_pressure.GetMax() << std::endl
+				  << "min = " << m_pressure.GetMin() << std::endl
+				  << "avg = " << m_pressure.GetAverage() << std::endl
+				  << std::endl;
 	}
 
-	double m_minTemperature = std::numeric_limits<double>::infinity();
-	double m_maxTemperature = -std::numeric_limits<double>::infinity();
-	double m_accTemperature = 0;
-	unsigned m_countAcc = 0;
-
+	CStatsCounter m_temperature;
+	CStatsCounter m_humidity;
+	CStatsCounter m_pressure;
 };
 
 class CWeatherData : public CObservable<SWeatherInfo>
 {
 public:
-	double GetTemperature()const
+	double GetTemperature() const
 	{
 		return m_temperature;
 	}
-	double GetHumidity()const
+	double GetHumidity() const
 	{
 		return m_humidity;
 	}
-	double GetPressure()const
+	double GetPressure() const
 	{
 		return m_pressure;
 	}
@@ -82,15 +134,18 @@ public:
 
 		MeasurementsChanged();
 	}
+
 protected:
-	SWeatherInfo GetChangedData()const override
+	SWeatherInfo GetChangedData() const override
 	{
 		SWeatherInfo info;
 		info.temperature = GetTemperature();
 		info.humidity = GetHumidity();
 		info.pressure = GetPressure();
+
 		return info;
 	}
+
 private:
 	double m_temperature = 0.0;
 	double m_humidity = 0.0;

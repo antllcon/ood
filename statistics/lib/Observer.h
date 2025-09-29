@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <set>
 
 template <typename T>
@@ -14,8 +15,10 @@ template <typename T>
 class IObservable
 {
 public:
-	virtual void RegisterObserver(IObserver<T>& observer) = 0;
-	virtual void RemoveObserver(IObserver<T>& observer) = 0;
+	using ObserverType = IObserver<T>;
+
+	virtual void RegisterObserver(std::shared_ptr<ObserverType> observer) = 0;
+	virtual void RemoveObserver(std::shared_ptr<ObserverType> observer) = 0;
 	virtual void NotifyObservers() = 0;
 	virtual ~IObservable() = default;
 };
@@ -24,30 +27,56 @@ template <class T>
 class CObservable : public IObservable<T>
 {
 public:
-	typedef IObserver<T> ObserverType;
+	using ObserverType = IObserver<T>;
 
-	void RegisterObserver(ObserverType& observer) override
+	void RegisterObserver(std::shared_ptr<ObserverType> observer) override
 	{
-		m_observers.insert(&observer);
+		// m_observers.insert(&observer);
+		m_observers.insert(observer);
+	}
+
+	void RemoveObserver(std::shared_ptr<ObserverType> observer) override
+	{
+		for (auto it = m_observers.begin(); it != m_observers.end(); ++it)
+		{
+			if (it->lock() == observer)
+			{
+				m_observers.erase(it);
+				break;
+			}
+		}
+
+		// m_observers.erase(&observer);
 	}
 
 	void NotifyObservers() override
 	{
 		T data = GetChangedData();
-		for (auto& observer : m_observers)
+
+		for (auto it = m_observers.begin(); it != m_observers.end();)
+		{
+			if (auto observer = it->lock())
+			{
+				observer->Update(data);
+				++it;
+			}
+			else
+			{
+				it = m_observers.erase(it);
+			}
+		}
+
+		/*for (auto& observer : m_observers)
 		{
 			observer->Update(data);
-		}
-	}
-
-	void RemoveObserver(ObserverType& observer) override
-	{
-		m_observers.erase(&observer);
+		}*/
 	}
 
 protected:
 	virtual T GetChangedData() const = 0;
 
 private:
-	std::set<ObserverType*> m_observers;
+	// std::set<ObserverType*> m_observers;
+
+	std::set<std::weak_ptr<ObserverType>, std::owner_less<std::weak_ptr<ObserverType>>> m_observers;
 };
