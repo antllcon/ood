@@ -38,10 +38,10 @@ TEST(WeatherStationTest, ObserverCanRemoveItselfSafely)
 	wd.RegisterObserver(obs2);
 
 	wd.SetMeasurements(25.0, 0.6, 750);
-
 	EXPECT_TRUE(obs1->updated);
 
 	obs1->updated = false;
+
 	wd.SetMeasurements(30.0, 0.7, 755);
 	EXPECT_FALSE(obs1->updated);
 }

@@ -112,10 +112,12 @@ public:
 	{
 		return m_temperature;
 	}
+
 	double GetHumidity() const
 	{
 		return m_humidity;
 	}
+
 	double GetPressure() const
 	{
 		return m_pressure;

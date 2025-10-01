@@ -19,4 +19,4 @@ target_include_directories(statistics-test PRIVATE lib test)
 
 target_link_libraries(statistics-test PRIVATE gtest_main gmock_main)
 enable_testing()
-add_test(NAME hz-test COMMAND statistics-test)
+add_test(NAME statisticss-test COMMAND statistics-test)

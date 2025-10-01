@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <set>
@@ -17,9 +18,10 @@ class IObservable
 {
 public:
 	using ObserverType = IObserver<T>;
+	using ObserverPtr = std::shared_ptr<ObserverType>;
 
-	virtual void RegisterObserver(std::shared_ptr<ObserverType> observer, uint64_t priority = 0) = 0;
-	virtual void RemoveObserver(std::shared_ptr<ObserverType> observer) = 0;
+	virtual void RegisterObserver(const ObserverPtr& observer, const uint64_t priority = 0) = 0;
+	virtual void RemoveObserver(const ObserverPtr& observer) = 0;
 	virtual void NotifyObservers() = 0;
 	virtual ~IObservable() = default;
 };
@@ -28,65 +30,77 @@ template <class T>
 class CObservable : public IObservable<T>
 {
 public:
-	using ObserverType = IObserver<T>;
+	using ObserverType = typename IObservable<T>::ObserverType;
+	using ObserverPtr = typename IObservable<T>::ObserverPtr;
+	using WeakObserverPtr = std::weak_ptr<ObserverType>;
 
-	void RegisterObserver(std::shared_ptr<ObserverType> observer, uint64_t priority = 0) override
+	void RegisterObserver(const ObserverPtr& observer, const uint64_t priority = 0) override
 	{
-		if (m_observerToPriority.find(observer) != m_observerToPriority.end())
+		const auto [it, inserted] = m_priorityMap.insert({observer, priority});
+
+		if (!inserted)
 		{
 			return;
 		}
 
-		m_priorityObservers[priority].insert(observer);
-		m_observerToPriority[observer] = priority;
+		try
+		{
+			m_observers.insert({priority, observer});
+		}
+		catch (...)
+		{
+			m_priorityMap.erase(it);
+			throw;
+		}
 	}
 
-	void RemoveObserver(std::shared_ptr<ObserverType> observer) override
+	void RemoveObserver(const ObserverPtr& observer) override
 	{
-		auto it = m_observerToPriority.find(observer);
-		if (it == m_observerToPriority.end())
-		{
+		const auto it = m_priorityMap.find(observer);
+		if (it == m_priorityMap.end())
+		{ 
 			return;
 		}
 
-		auto priority = it->second;
-		auto& list = m_priorityObservers[priority];
+		const auto priority = it->second;
+		m_priorityMap.erase(it);
 
-		for (auto i = list.begin(); i != list.end();)
+		auto range = m_observers.equal_range(priority);
+		for (auto itObs = range.first; itObs != range.second; ++itObs)
 		{
-			if (i->lock() == observer)
+			if (itObs->second.lock() == observer)
 			{
-				i = list.erase(i);
-			}
-			else
-			{
-				++i;
+				m_observers.erase(itObs);
+				break;
 			}
 		}
-
-		if (list.empty())
-		{
-			m_priorityObservers.erase(priority);
-		}
-
-		m_observerToPriority.erase(it);
 	}
 
 	void NotifyObservers() override
 	{
 		T data = GetChangedData();
-		for (auto it = m_priorityObservers.rbegin(); it != m_priorityObservers.rend(); ++it)
+		auto observersCopy = m_observers;
+		std::vector<WeakObserverPtr> deadObservers;
+
+		for (auto& weakObs : observersCopy)
 		{
-			auto observersCopy = it->second;
-			for (auto& weakObs : observersCopy)
+			if (auto obs = weakObs.second.lock())
 			{
-				if (auto obs = weakObs.lock())
+				obs->Update(data);
+			}
+			else
+			{
+				deadObservers.push_back(weakObs.second);
+			}
+		}
+
+		if (!deadObservers.empty())
+		{
+			for (const auto& weakObs : deadObservers)
+			{
+				if (auto it = m_priorityMap.find(weakObs); it != m_priorityMap.end())
 				{
-					obs->Update(data);
-				}
-				else
-				{
-					// TODO: удалять объект
+					m_priorityMap.erase(it);
 				}
 			}
 		}
@@ -96,6 +110,6 @@ protected:
 	virtual T GetChangedData() const = 0;
 
 private:
-	std::map<uint64_t, std::set<std::weak_ptr<ObserverType>, std::owner_less<std::weak_ptr<ObserverType>>>> m_priorityObservers;
-	std::map<std::shared_ptr<ObserverType>, uint64_t> m_observerToPriority;
+	std::map<WeakObserverPtr, uint64_t, std::owner_less<>> m_priorityMap;
+	std::multimap<uint64_t, WeakObserverPtr, std::greater<uint64_t>> m_observers;
 };
