@@ -6,10 +6,13 @@
 #include <set>
 
 template <typename T>
+class IObservable;
+
+template <typename T>
 class IObserver
 {
 public:
-	virtual void Update(T const& data) = 0;
+	virtual void Update(T const& data, IObservable<T>* subject) = 0;
 	virtual ~IObserver() = default;
 };
 
@@ -56,7 +59,7 @@ public:
 
 	void RemoveObserver(const ObserverPtr& observer) override
 	{
-		const auto it = m_priorityMap.find(observer);
+		const auto it = m_priorityMap.find(WeakObserverPtr(observer));
 		if (it == m_priorityMap.end())
 		{
 			return;
@@ -86,7 +89,7 @@ public:
 		{
 			if (auto obs = weakObs.second.lock())
 			{
-				obs->Update(data);
+				obs->Update(data, this);
 			}
 			else
 			{
@@ -98,10 +101,7 @@ public:
 		{
 			for (const auto& weakObs : deadObservers)
 			{
-				if (auto it = m_priorityMap.find(weakObs); it != m_priorityMap.end())
-				{
-					m_priorityMap.erase(it);
-				}
+				m_priorityMap.erase(weakObs);
 			}
 		}
 	}
@@ -110,6 +110,6 @@ protected:
 	virtual T GetChangedData() const = 0;
 
 private:
-	std::map<WeakObserverPtr, uint64_t, std::owner_less<>> m_priorityMap;
+	std::map<WeakObserverPtr, uint64_t, std::owner_less<WeakObserverPtr>> m_priorityMap;
 	std::multimap<uint64_t, WeakObserverPtr, std::greater<uint64_t>> m_observers;
 };

@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-class TestSubject : public CObservable<int>
+class TestObservable : public CObservable<int>
 {
 public:
 	void ChangeData(int newData)
@@ -35,24 +35,17 @@ public:
 	void Update(int const& data) override
 	{
 		m_notificationOrder.emplace_back(m_id);
-		m_updateCount++;
-	}
-
-	int getUpdateCount() const
-	{
-		return m_updateCount;
 	}
 
 private:
 	int m_id;
 	std::vector<int>& m_notificationOrder;
-	int m_updateCount = 0;
 };
 
 class ObserverPatternTest : public ::testing::Test
 {
 protected:
-	TestSubject subject;
+	TestObservable subject;
 	std::vector<int> notificationOrder;
 };
 
@@ -66,7 +59,6 @@ TEST_F(ObserverPatternTest, NotifiesObserversInPriorityOrder)
 	subject.RegisterObserver(obs2, 100);
 	subject.RegisterObserver(obs3, 10);
 
-	// Для чего
 	subject.ChangeData(1337);
 
 	std::vector<int> expectedOrder = {2, 3, 1};
@@ -82,7 +74,6 @@ TEST_F(ObserverPatternTest, IgnoresDuplicateRegistration)
 
 	subject.ChangeData(1337);
 
-	ASSERT_EQ(obs1->getUpdateCount(), 1);
 	ASSERT_EQ(notificationOrder.size(), 1);
 }
 
