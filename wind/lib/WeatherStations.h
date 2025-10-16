@@ -3,8 +3,6 @@
 #include "Observer.h"
 #include "WeatherDataTypes.h"
 
-#include <iostream>
-
 class CWeatherData : public CObservable<SWeatherInfo>
 {
 public:
@@ -72,7 +70,7 @@ private:
 class CWeatherDataPro : public CObservable<SWeatherInfo>
 {
 public:
-	CWeatherDataPro(const std::string& name)
+	explicit CWeatherDataPro(const std::string& name)
 		: m_stationName(name)
 	{
 	}

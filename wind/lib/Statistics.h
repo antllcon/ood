@@ -3,8 +3,6 @@
 #include <cmath>
 #include <limits>
 
-#define M_PI 3.14159265358979323846
-
 class CWindDirectionCounter final
 {
 public:
@@ -51,7 +49,10 @@ public:
 		double min = m_directions[0];
 		for (double angle : m_directions)
 		{
-			if (angle < min) min = angle;
+			if (angle < min)
+			{
+				min = angle;
+			}
 		}
 		return min;
 	}
@@ -63,7 +64,10 @@ public:
 		double max = m_directions[0];
 		for (double angle : m_directions)
 		{
-			if (angle > max) max = angle;
+			if (angle > max)
+			{
+				max = angle;
+			}
 		}
 		return max;
 	}

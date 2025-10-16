@@ -11,7 +11,6 @@ template <typename T>
 class IObserver
 {
 public:
-	// TODO: можно ли ссылку?
 	virtual void Update(T const& data, IObservable<T>* subject) = 0;
 	virtual ~IObserver() = default;
 };

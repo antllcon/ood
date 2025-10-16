@@ -3,7 +3,6 @@
 #include "Observer.h"
 #include "Statistics.h"
 #include "WeatherDataTypes.h"
-#include "WeatherStations.h"
 #include <iostream>
 #include <map>
 

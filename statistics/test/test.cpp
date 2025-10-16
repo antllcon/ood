@@ -1,7 +1,6 @@
 ﻿#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include <memory>
-#include <set>
 
 #include "Observer.h"
 #include "WeatherData.h"
