@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
+  <ellipse cx="700" cy="100" rx="60" ry="60" stroke="yellow" fill="none" />
+  <line x1="0" y1="400" x2="450" y2="150" stroke="black" />
+  <line x1="450" y1="150" x2="800" y2="400" stroke="black" />
+  <line x1="800" y1="400" x2="0" y2="400" stroke="black" />
+  <line x1="500" y1="400" x2="650" y2="250" stroke="black" />
+  <line x1="650" y1="250" x2="800" y2="400" stroke="black" />
+  <line x1="800" y1="400" x2="500" y2="400" stroke="black" />
+  <line x1="0" y1="480" x2="800" y2="480" stroke="blue" />
+  <line x1="800" y1="480" x2="800" y2="500" stroke="blue" />
+  <line x1="800" y1="500" x2="0" y2="500" stroke="blue" />
+  <line x1="0" y1="500" x2="0" y2="480" stroke="blue" />
+  <line x1="0" y1="400" x2="800" y2="400" stroke="green" />
+  <line x1="800" y1="400" x2="800" y2="600" stroke="green" />
+  <line x1="800" y1="600" x2="0" y2="600" stroke="green" />
+  <line x1="0" y1="600" x2="0" y2="400" stroke="green" />
+  <line x1="150" y1="350" x2="180" y2="350" stroke="black" />
+  <line x1="180" y1="350" x2="180" y2="450" stroke="black" />
+  <line x1="180" y1="450" x2="150" y2="450" stroke="black" />
+  <line x1="150" y1="450" x2="150" y2="350" stroke="black" />
+  <ellipse cx="165" cy="300" rx="70" ry="80" stroke="green" fill="none" />
+  <line x1="550" y1="400" x2="565" y2="400" stroke="black" />
+  <line x1="565" y1="400" x2="565" y2="460" stroke="black" />
+  <line x1="565" y1="460" x2="550" y2="460" stroke="black" />
+  <line x1="550" y1="460" x2="550" y2="400" stroke="black" />
+  <ellipse cx="558" cy="380" rx="40" ry="50" stroke="green" fill="none" />
+  <line x1="100" y1="100" x2="110" y2="115" stroke="black" />
+  <line x1="110" y1="115" x2="120" y2="100" stroke="black" />
+  <line x1="120" y1="100" x2="100" y2="100" stroke="black" />
+  <line x1="150" y1="120" x2="160" y2="125" stroke="black" />
+  <line x1="160" y1="125" x2="170" y2="120" stroke="black" />
+  <line x1="170" y1="120" x2="150" y2="120" stroke="black" />
+</svg>

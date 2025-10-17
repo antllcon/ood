@@ -4,5 +4,5 @@
 
 ### Полезные ссылки
 
-- [Курс (лабы и темы)](https://github.com/alexey-malov/ood)
-- [Баллы](https://docs.google.com/spreadsheets/d/1hMie8Z4nUiXir7ywDavxvHXc6KnLnZC2GzqIRABWbc0/edit?gid=0#gid=0)
+- [Траектория](https://github.com/alexey-malov/ood)
+- [Успеваемость](https://docs.google.com/spreadsheets/d/1hMie8Z4nUiXir7ywDavxvHXc6KnLnZC2GzqIRABWbc0/edit?gid=0#gid=0)
