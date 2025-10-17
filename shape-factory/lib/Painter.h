@@ -4,7 +4,7 @@
 class Painter
 {
 public:
-	void DrawPicture(const IPictureDraft& draft, ICanvas& canvas) const
+	static void DrawPicture(const IPictureDraft& draft, ICanvas& canvas)
 	{
 		for (size_t i = 0; i < draft.GetShapeCount(); ++i)
 		{

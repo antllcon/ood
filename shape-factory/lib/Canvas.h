@@ -1,5 +1,6 @@
 #pragma once
 #include "Common.h"
+#include <iostream>
 
 class ICanvas
 {
@@ -20,7 +21,7 @@ public:
 		m_out << R"(<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">)" << std::endl;
 	}
 
-	~SvgCanvas()
+	~SvgCanvas() override
 	{
 		m_out << "</svg>" << std::endl;
 	}
@@ -45,7 +46,7 @@ public:
 	}
 
 private:
-	std::string ColorToString(Color color) const
+	static std::string ColorToString(Color color)
 	{
 		switch (color)
 		{

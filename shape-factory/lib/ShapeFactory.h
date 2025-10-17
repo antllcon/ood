@@ -1,16 +1,9 @@
 #pragma once
-#include <Designer.h>
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 #include <string>
-
-class IShapeFactory
-{
-public:
-	virtual ~IShapeFactory() = default;
-
-	virtual std::unique_ptr<Shape> CreateShape(const std::string& descr) = 0;
-};
+#include "IShapeFactory.h"
 
 class ShapeFactory final : public IShapeFactory
 {
@@ -38,10 +31,10 @@ public:
 	}
 
 private:
-	Color ParseColor(const std::string& colorStr)
+	static Color ParseColor(const std::string& colorStr)
 	{
 
-		auto it = colorMap.find(colorStr);
+		const auto it = colorMap.find(colorStr);
 		if (it == colorMap.end())
 		{
 			throw std::invalid_argument("Unknown color");
@@ -50,7 +43,7 @@ private:
 		return it->second;
 	}
 
-	std::unique_ptr<Shape> CreateRectangle(std::stringstream& ss)
+	static std::unique_ptr<Shape> CreateRectangle(std::stringstream& ss)
 	{
 		std::string colorStr;
 		Point leftTop, rightBottom;
@@ -73,7 +66,7 @@ private:
 		}
 	}
 
-	std::unique_ptr<Shape> CreateTriangle(std::stringstream& ss)
+	static std::unique_ptr<Shape> CreateTriangle(std::stringstream& ss)
 	{
 		std::string colorStr;
 		Point v1, v2, v3;
@@ -96,7 +89,7 @@ private:
 		}
 	}
 
-	std::unique_ptr<Shape> CreateEllipse(std::stringstream& ss)
+	static std::unique_ptr<Shape> CreateEllipse(std::stringstream& ss)
 	{
 		std::string colorStr;
 		Point center;

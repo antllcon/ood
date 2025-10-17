@@ -1,0 +1,11 @@
+ellipse yellow 700 100 60 60
+triangle purple 0 400 450 150 800 400
+triangle light_brown 500 400 650 250 800 400
+rectangle blue 0 480 800 500
+rectangle green 0 400 800 600
+rectangle dark_brown 150 350 180 450
+ellipse green 165 300 70 80
+rectangle brown 550 400 565 460
+ellipse green 558 380 40 50
+triangle black 100 100 110 115 120 100
+triangle black 150 120 160 125 170 120

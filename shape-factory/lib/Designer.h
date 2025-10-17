@@ -1,8 +1,10 @@
 #pragma once
+#include "ShapeFactory.h"
 #include <Painter.h>
 #include <memory>
 #include <string>
 
+class IShapeFactory;
 class IDesigner
 {
 public:

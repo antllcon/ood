@@ -12,6 +12,7 @@ public:
 
 	virtual ~Shape() = default;
 	virtual void Draw(ICanvas& canvas) const = 0;
+	virtual std::unique_ptr<Shape> Clone() const = 0;
 
 	Color GetColor() const
 	{
@@ -43,6 +44,11 @@ public:
 		canvas.DrawLine(rightTop, m_rightBottom);
 		canvas.DrawLine(m_rightBottom, leftBottom);
 		canvas.DrawLine(leftBottom, m_leftTop);
+	}
+
+	std::unique_ptr<Shape> Clone() const override
+	{
+		return std::make_unique<Rectangle>(*this);
 	}
 
 	Point GetLeftTop() const
@@ -77,6 +83,11 @@ public:
 		canvas.DrawLine(m_vertex1, m_vertex2);
 		canvas.DrawLine(m_vertex2, m_vertex3);
 		canvas.DrawLine(m_vertex3, m_vertex1);
+	}
+
+	std::unique_ptr<Shape> Clone() const override
+	{
+		return std::make_unique<Triangle>(*this);
 	}
 
 	Point GetVertex1() const
@@ -115,6 +126,12 @@ public:
 	{
 		canvas.SetColor(m_color);
 		canvas.DrawEllipse(m_center, m_horizontalRadius, m_verticalRadius);
+	}
+
+
+	std::unique_ptr<Shape> Clone() const override
+	{
+		return std::make_unique<Ellipse>(*this);
 	}
 
 	Point GetCenter() const

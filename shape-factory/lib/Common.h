@@ -9,7 +9,11 @@ enum class Color
 	Blue,
 	Yellow,
 	Pink,
-	Black
+	Black,
+	Brown,
+	DarkBrown,
+	Purple,
+	LightBrown
 };
 
 inline static const std::map<std::string, Color> colorMap = {
@@ -18,7 +22,12 @@ inline static const std::map<std::string, Color> colorMap = {
 	{"blue", Color::Blue},
 	{"yellow", Color::Yellow},
 	{"pink", Color::Pink},
-	{"black", Color::Black}};
+	{"black", Color::Black},
+	{"brown", Color::Brown},
+	{"dark_brown", Color::DarkBrown},
+	{"purple", Color::Purple},
+	{"light_brown", Color::LightBrown},
+};
 
 struct Point
 {
