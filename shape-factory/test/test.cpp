@@ -185,6 +185,7 @@ TEST(PainterTests, DrawsAllShapesFromDraft)
 	painter.DrawPicture(draft, canvas);
 }
 
+// Тесты макета
 TEST(PictureDraftTests, IsInitiallyEmpty)
 {
 	PictureDraft draft;
