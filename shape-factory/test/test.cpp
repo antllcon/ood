@@ -1,7 +1,7 @@
 #include "Canvas.h"
+#include "Designer.h"
 #include "IShapeFactory.h"
 #include "ShapeFactory.h"
-#include "Designer.h"
 
 #include <gmock/gmock.h>
 
@@ -21,15 +21,15 @@ public:
 	MOCK_METHOD(std::unique_ptr<Shape>, CreateShape, (const std::string& descr), (override));
 };
 
-class MockShape : public Shape {
+class MockShape : public Shape
+{
 public:
-	// Наследуем конструктор
 	using Shape::Shape;
-	MOCK_METHOD(void, Draw, (ICanvas& canvas), (const, override));
+	MOCK_METHOD(void, Draw, (ICanvas & canvas), (const, override));
 	MOCK_METHOD(std::unique_ptr<Shape>, Clone, (), (const, override));
 };
 
-// Тестирование фабрики
+// Тестирование Factory
 TEST(ShapeFactoryTests, CanCreateRectangle)
 {
 	ShapeFactory factory;
@@ -141,7 +141,6 @@ TEST(ShapeTests, CanCloneShapes)
 	EXPECT_EQ(original.GetLeftTop().x, clonedRect->GetLeftTop().x);
 }
 
-
 TEST(DesignerTests, CreatesDraftFromStream)
 {
 	MockShapeFactory factory;
@@ -185,7 +184,7 @@ TEST(PainterTests, DrawsAllShapesFromDraft)
 	painter.DrawPicture(draft, canvas);
 }
 
-// Тесты макета
+// Тестироавание Draft
 TEST(PictureDraftTests, IsInitiallyEmpty)
 {
 	PictureDraft draft;
