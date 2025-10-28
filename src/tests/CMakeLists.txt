@@ -2,6 +2,7 @@ add_executable(tests redactor.test.cpp)
 target_link_libraries(tests PRIVATE
         paragraph
         image
+        documentItem
         GTest::gtest_main)
 
 include(GoogleTest)

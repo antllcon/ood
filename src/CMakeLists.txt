@@ -1,6 +1,7 @@
 set(MODULES
         paragraph
         image
+        documentItem
 )
 
 foreach (MODULE ${MODULES})

@@ -1,3 +1,4 @@
+#include "documentItem/DocumentItem.h"
 #include "image/Image.h"
 #include "paragraph/Paragraph.h"
 #include "gtest/gtest.h"
@@ -5,6 +6,7 @@
 #include <memory>
 #include <string>
 
+class ConstDocumentItem;
 class ParagraphTests : public ::testing::Test
 {
 };
@@ -144,4 +146,72 @@ TEST_F(ImageTests, AllowsBoundaryDimensions)
 	EXPECT_NO_THROW(img.Resize(Image::MAX_DIMENSION, Image::MAX_DIMENSION));
 	EXPECT_EQ(img.GetWidth(), Image::MAX_DIMENSION);
 	EXPECT_EQ(img.GetHeight(), Image::MAX_DIMENSION);
+}
+
+class DocumentItemTests : public ::testing::Test
+{
+protected:
+	std::shared_ptr<IParagraph> m_paragraph = std::make_shared<Paragraph>("Test paragraph");
+	std::shared_ptr<IImage> m_image = std::make_shared<Image>("images/test.png", 100, 100);
+};
+
+TEST_F(DocumentItemTests, CanHoldParagraph)
+{
+	DocumentItem item(m_paragraph);
+
+	EXPECT_EQ(item.GetParagraph(), m_paragraph);
+	EXPECT_EQ(item.GetImage(), nullptr);
+}
+
+TEST_F(DocumentItemTests, CanHoldImage)
+{
+	DocumentItem item(m_image);
+
+	EXPECT_EQ(item.GetImage(), m_image);
+	EXPECT_EQ(item.GetParagraph(), nullptr);
+}
+
+TEST_F(DocumentItemTests, CanAccessParagraphAsConst)
+{
+	const DocumentItem item(m_paragraph);
+	const ConstDocumentItem& constItem = item;
+
+	EXPECT_EQ(constItem.GetParagraph(), m_paragraph);
+	EXPECT_EQ(constItem.GetImage(), nullptr);
+}
+
+TEST_F(DocumentItemTests, CanAccessImageAsConst)
+{
+	const DocumentItem item(m_image);
+	const ConstDocumentItem& constItem = item;
+
+	EXPECT_EQ(constItem.GetImage(), m_image);
+	EXPECT_EQ(constItem.GetParagraph(), nullptr);
+}
+
+TEST_F(DocumentItemTests, ConstructorThrowsOnNullParagraph)
+{
+	std::shared_ptr<IParagraph> nullParagraph = nullptr;
+	EXPECT_THROW(DocumentItem item(nullParagraph), std::invalid_argument);
+}
+
+TEST_F(DocumentItemTests, ConstructorThrowsOnNullImage)
+{
+	std::shared_ptr<IImage> nullImage = nullptr;
+	EXPECT_THROW(DocumentItem item(nullImage), std::invalid_argument);
+}
+
+TEST_F(DocumentItemTests, GettersReturnCorrectTypes)
+{
+	DocumentItem paragraphItem(m_paragraph);
+	DocumentItem imageItem(m_image);
+
+	::testing::StaticAssertTypeEq<decltype(paragraphItem.GetParagraph()), std::shared_ptr<IParagraph>>();
+	::testing::StaticAssertTypeEq<decltype(imageItem.GetImage()), std::shared_ptr<IImage>>();
+
+	[[maybe_unused]] const auto& constParagraphItem = paragraphItem;
+	[[maybe_unused]] const auto& constImageItem = imageItem;
+
+	::testing::StaticAssertTypeEq<decltype(constParagraphItem.GetParagraph()), std::shared_ptr<const IParagraph>>();
+	::testing::StaticAssertTypeEq<decltype(constImageItem.GetImage()), std::shared_ptr<const IImage>>();
 }
