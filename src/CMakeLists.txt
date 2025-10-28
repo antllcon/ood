@@ -1,4 +1,7 @@
-set(MODULES redactor)
+set(MODULES
+        paragraph
+        image
+)
 
 foreach (MODULE ${MODULES})
     add_subdirectory(libs/${MODULE})
