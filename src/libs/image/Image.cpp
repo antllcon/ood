@@ -11,7 +11,7 @@ void AssertIsSizeValid(unsigned int number)
 	}
 }
 
-void AssertIsPathExist(const std::string& path)
+void AssertIsPathExist(const Path& path)
 {
 	if (path.empty())
 	{
@@ -20,14 +20,14 @@ void AssertIsPathExist(const std::string& path)
 }
 } // namespace
 
-Image::Image(const std::string& path, unsigned int width, unsigned int height)
-	: m_path(path)
+Image::Image(const Path& path, unsigned int width, unsigned int height)
+	:m_path(path)
 {
 	AssertIsPathExist(path);
 	Resize(width, height);
 }
 
-const std::string& Image::GetPath() const
+const Path& Image::GetPath() const
 {
 	return m_path;
 }
