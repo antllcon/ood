@@ -1,13 +1,22 @@
+#include "document/Document.h"
 #include "documentItem/DocumentItem.h"
 #include "image/Image.h"
 #include "paragraph/Paragraph.h"
+
+#include "gmock/gmock.h"
+#include "resource/IResourceManager.h"
+
 #include "gtest/gtest.h"
 
 #include <memory>
 #include <string>
 
+using ::testing::_;
+using ::testing::Return;
+using ::testing::StrictMock;
+
 class ConstDocumentItem;
-class ParagraphTests : public ::testing::Test
+class ParagraphTests : public testing::Test
 {
 };
 
@@ -51,7 +60,7 @@ TEST_F(ParagraphTests, WorksPolymorphicallyThroughInterface)
 	EXPECT_EQ(p->GetText(), newText);
 }
 
-class ImageTests : public ::testing::Test
+class ImageTests : public testing::Test
 {
 };
 
@@ -148,7 +157,7 @@ TEST_F(ImageTests, AllowsBoundaryDimensions)
 	EXPECT_EQ(img.GetHeight(), Image::MAX_DIMENSION);
 }
 
-class DocumentItemTests : public ::testing::Test
+class DocumentItemTests : public testing::Test
 {
 protected:
 	std::shared_ptr<IParagraph> m_paragraph = std::make_shared<Paragraph>("Test paragraph");
@@ -214,4 +223,159 @@ TEST_F(DocumentItemTests, GettersReturnCorrectTypes)
 
 	::testing::StaticAssertTypeEq<decltype(constParagraphItem.GetParagraph()), std::shared_ptr<const IParagraph>>();
 	::testing::StaticAssertTypeEq<decltype(constImageItem.GetImage()), std::shared_ptr<const IImage>>();
+}
+
+class StubResourceManager : public IResourceManager
+{
+public:
+
+	StubResourceManager() = default;
+	Path CopyImage(const Path& sourcePath) const override
+	{
+		m_lastCopiedSource = sourcePath;
+		return m_pathToReturn;
+	}
+
+	void MarkForDeletion(const Path& path) override
+	{
+		m_markedPaths.insert(path);
+	}
+
+	void UnmarkForDeletion(const Path& path) override { /* no-op */ }
+	void Cleanup() override { /* no-op */ }
+	void SaveImagesTo(const Path& path) const override { /* no-op */ }
+
+	Path m_pathToReturn = "stub/image.png";
+	mutable Path m_lastCopiedSource;
+	std::set<Path> m_markedPaths;
+};
+
+class StubExporter final : public IExportStrategy
+{
+public:
+	mutable bool m_isCalled = false;
+	mutable const IDocument* m_exportedDocument = nullptr;
+	mutable Path m_lastPath;
+
+	void Export(const IDocument& document, const Path& outputPath) const override
+	{
+		m_isCalled = true;
+		m_exportedDocument = &document;
+		m_lastPath = outputPath;
+	}
+};
+
+class DocumentTests : public testing::Test
+{
+protected:
+	std::shared_ptr<StubResourceManager> m_res = std::make_shared<StubResourceManager>();
+	std::unique_ptr<Document> m_doc = std::make_unique<Document>("Initial Title", m_res);
+};
+
+TEST_F(DocumentTests, InitialStateIsCorrect)
+{
+	EXPECT_EQ(m_doc->GetTitle(), "Initial Title");
+	EXPECT_EQ(m_doc->GetItemsCount(), 0);
+}
+
+TEST_F(DocumentTests, SetTitleWorks)
+{
+	m_doc->SetTitle("New Title");
+	EXPECT_EQ(m_doc->GetTitle(), "New Title");
+}
+
+TEST_F(DocumentTests, SetTitleThrowsOnEmpty)
+{
+	EXPECT_THROW(m_doc->SetTitle(""), std::invalid_argument);
+}
+
+TEST_F(DocumentTests, InsertParagraphAppendsToEnd)
+{
+	auto p1 = m_doc->InsertParagraph("Hello", std::nullopt);
+	ASSERT_EQ(m_doc->GetItemsCount(), 1);
+	EXPECT_EQ(m_doc->GetItem(0).GetParagraph(), p1);
+
+	auto p2 = m_doc->InsertParagraph("World", std::nullopt);
+	ASSERT_EQ(m_doc->GetItemsCount(), 2);
+	EXPECT_EQ(m_doc->GetItem(1).GetParagraph(), p2);
+}
+
+TEST_F(DocumentTests, InsertParagraphAtPosition)
+{
+	auto pB = m_doc->InsertParagraph("B", std::nullopt);
+	auto pA = m_doc->InsertParagraph("A", 0);
+
+	ASSERT_EQ(m_doc->GetItemsCount(), 2);
+	EXPECT_EQ(m_doc->GetItem(0).GetParagraph(), pA);
+	EXPECT_EQ(m_doc->GetItem(1).GetParagraph(), pB);
+}
+
+TEST_F(DocumentTests, InsertParagraphThrowsOnInvalidPosition)
+{
+	EXPECT_THROW(m_doc->InsertParagraph("A", 1), std::out_of_range);
+}
+
+TEST_F(DocumentTests, InsertImageCallsResourceManager)
+{
+	m_res->m_pathToReturn = "images/generated_cat.png";
+	auto img = m_doc->InsertImage("C:/source/cat.png", 300, 200);
+
+	ASSERT_EQ(m_doc->GetItemsCount(), 1);
+	EXPECT_EQ(m_doc->GetItem(0).GetImage(), img);
+	EXPECT_EQ(img->GetWidth(), 300);
+
+	EXPECT_EQ(m_res->m_lastCopiedSource, "C:/source/cat.png");
+	EXPECT_EQ(img->GetPath(), "images/generated_cat.png");
+}
+
+TEST_F(DocumentTests, GetItemAndConstGetItemWork)
+{
+	m_doc->InsertParagraph("Test");
+
+	m_doc->GetItem(0).GetParagraph()->SetText("Mutated");
+	EXPECT_EQ(m_doc->GetItem(0).GetParagraph()->GetText(), "Mutated");
+
+	const IDocument& constDoc = *m_doc;
+	const ConstDocumentItem& constItem = constDoc.GetItem(0);
+	EXPECT_EQ(constItem.GetParagraph()->GetText(), "Mutated");
+
+	// Эта строка не скомпилируется
+	// constItem.GetParagraph()->SetText("Won't compile");
+}
+
+TEST_F(DocumentTests, DeleteItemRemovesItem)
+{
+	m_doc->InsertParagraph("A", std::nullopt);
+	m_doc->InsertParagraph("B", std::nullopt);
+	m_doc->InsertParagraph("C", std::nullopt);
+
+	m_doc->DeleteItem(1); // Удаляем "B"
+
+	ASSERT_EQ(m_doc->GetItemsCount(), 2);
+	EXPECT_EQ(m_doc->GetItem(0).GetParagraph()->GetText(), "A");
+	EXPECT_EQ(m_doc->GetItem(1).GetParagraph()->GetText(), "C");
+}
+
+TEST_F(DocumentTests, TDD_DeleteItemMarksImageForDeletion)
+{
+	m_res->m_pathToReturn = "img.png";
+	auto img = m_doc->InsertImage("source.png", 100, 100);
+	Path imagePath = img->GetPath();
+
+	m_doc->DeleteItem(0);
+
+	bool isMarked = m_res->m_markedPaths.contains(imagePath);
+	ASSERT_TRUE(isMarked) << "DeleteItem не вызвал MarkForDeletion у ResourceManager!";
+}
+
+TEST_F(DocumentTests, SaveDelegatesToStrategy)
+{
+	StubExporter exporter;
+	Path savePath = "C:/my-doc.html";
+
+	m_doc->Save(savePath, exporter);
+
+	EXPECT_TRUE(exporter.m_isCalled);
+	EXPECT_EQ(exporter.m_lastPath, savePath);
+	EXPECT_EQ(exporter.m_exportedDocument, m_doc.get());
 }
