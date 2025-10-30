@@ -1,4 +1,5 @@
 set(MODULES
+        console
         document
         documentItem
         export

@@ -1,5 +1,6 @@
 add_executable(tests redactor.test.cpp)
 target_link_libraries(tests PRIVATE
+        console
         document
         documentItem
         export
