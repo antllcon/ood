@@ -1,4 +1,5 @@
-#include "HTMLExporter.h"
+#include "HTMLExportStrategy.h"
+
 #include "document/IDocument.h"
 #include "documentItem/ConstDocumentItem.h"
 #include "image/IImage.h"
@@ -20,7 +21,7 @@ void AssertIsFileExist(const std::ostream& file)
 
 } // namespace
 
-void HTMLExporterStrategy::Export(const IDocument& document, const Path& outputPath) const
+void HTMLExportStrategy::Export(const IDocument& document, const Path& outputPath) const
 {
 	std::ofstream outFile(outputPath);
 	AssertIsFileExist(outFile);
@@ -45,7 +46,7 @@ void HTMLExporterStrategy::Export(const IDocument& document, const Path& outputP
 	outFile << GenerateHTMLFooter();
 }
 
-std::string HTMLExporterStrategy::EscapeHTML(const std::string& text)
+std::string HTMLExportStrategy::EscapeHTML(const std::string& text)
 {
 	std::ostringstream oss;
 	for (char c : text)
@@ -76,7 +77,7 @@ std::string HTMLExporterStrategy::EscapeHTML(const std::string& text)
 	return oss.str();
 }
 
-std::string HTMLExporterStrategy::GenerateHTMLHeader(const std::string& title)
+std::string HTMLExportStrategy::GenerateHTMLHeader(const std::string& title)
 {
 	const std::string escapedTitle = EscapeHTML(title);
 
@@ -93,17 +94,17 @@ std::string HTMLExporterStrategy::GenerateHTMLHeader(const std::string& title)
 	return oss.str();
 }
 
-std::string HTMLExporterStrategy::GenerateHTMLFooter() noexcept
+std::string HTMLExportStrategy::GenerateHTMLFooter() noexcept
 {
 	return "</body>\n</html>\n";
 }
 
-std::string HTMLExporterStrategy::GenerateParagraphHTML(const std::string& text)
+std::string HTMLExportStrategy::GenerateParagraphHTML(const std::string& text)
 {
 	return "  <p>" + EscapeHTML(text) + "</p>\n";
 }
 
-std::string HTMLExporterStrategy::GenerateImageHTML(const std::shared_ptr<const IImage>& image)
+std::string HTMLExportStrategy::GenerateImageHTML(const std::shared_ptr<const IImage>& image)
 {
 	const std::string relativePath = image->GetPath().generic_string();
 

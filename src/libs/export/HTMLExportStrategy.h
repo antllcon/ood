@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IExporterStrategy.h"
+#include "IExportStrategy.h"
 
 #include <filesystem>
 #include <memory>
@@ -10,11 +10,11 @@ using Path = std::filesystem::path;
 class IDocument;
 class IImage;
 
-class HTMLExporterStrategy final : public IExporterStrategy
+class HTMLExportStrategy final : public IExportStrategy
 {
 public:
-	HTMLExporterStrategy() = default;
-	~HTMLExporterStrategy() = default;
+	HTMLExportStrategy() = default;
+	~HTMLExportStrategy() override = default;
 
 	void Export(const IDocument& document, const Path& outputPath) const override;
 
