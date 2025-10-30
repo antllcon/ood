@@ -1,7 +1,10 @@
 set(MODULES
-        paragraph
-        image
+        document
         documentItem
+        export
+        image
+        paragraph
+        resource
 )
 
 foreach (MODULE ${MODULES})
