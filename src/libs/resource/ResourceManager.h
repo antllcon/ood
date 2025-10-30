@@ -8,6 +8,7 @@ using Path = std::filesystem::path;
 class ResourceManager
 {
 public:
+	explicit ResourceManager() = default;
 	explicit ResourceManager(Path imagesDirectory);
 	~ResourceManager() = default;
 
@@ -21,6 +22,6 @@ public:
 	void Cleanup();
 
 private:
-	Path m_imagesDirectory;
+	Path m_imagesDirectory = Path("temp");
 	std::set<Path> m_markedForDeletion;
 };
