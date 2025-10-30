@@ -6,7 +6,7 @@ class Image final : public IImage
 {
 public:
 	constexpr static unsigned int DEFAULT_SIZE = 64;
-	constexpr static unsigned int MIN_DIMENSION = 0;
+	constexpr static unsigned int MIN_DIMENSION = 1;
 	constexpr static unsigned int MAX_DIMENSION = 10000;
 
 	Image(const Path& path);
