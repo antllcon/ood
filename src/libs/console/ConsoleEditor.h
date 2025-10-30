@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-class ConsoleEditor final
+class ConsoleEditor
 {
 public:
 	explicit ConsoleEditor(std::unique_ptr<IDocument> document, std::istream& in, std::ostream& out);
