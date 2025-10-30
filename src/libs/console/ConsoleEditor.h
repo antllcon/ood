@@ -1,7 +1,6 @@
 #pragma once
 
 #include "document/IDocument.h"
-#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -32,7 +31,6 @@ private:
 	// TODO: HandleUndo/HandleRedo (когда IDocument их реализует)
 
 	void PrintHelp() const;
-	void PrintError(const std::string& message) const;
 
 	std::unique_ptr<IDocument> m_document;
 	std::istream& m_in;
