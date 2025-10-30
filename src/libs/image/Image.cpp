@@ -20,6 +20,12 @@ void AssertIsPathExist(const Path& path)
 }
 } // namespace
 
+Image::Image(const Path& path)
+	:m_path(path)
+{
+	Resize(DEFAULT_SIZE, DEFAULT_SIZE);
+}
+
 Image::Image(const Path& path, unsigned int width, unsigned int height)
 	:m_path(path)
 {
