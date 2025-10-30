@@ -1,25 +1,24 @@
 #pragma once
 
+#include "IResourceManager.h"
+
 #include <filesystem>
 #include <set>
 
 using Path = std::filesystem::path;
 
-class ResourceManager
+class ResourceManager final : public IResourceManager
 {
 public:
 	explicit ResourceManager() = default;
 	explicit ResourceManager(Path imagesDirectory);
-	~ResourceManager() = default;
+	~ResourceManager() override = default;
 
-	ResourceManager(const ResourceManager&) = delete;
-	ResourceManager& operator=(const ResourceManager&) = delete;
-
-	Path CopyImage(const Path& sourcePath) const;
-	void SaveImagesTo(const Path& targetDirectory) const;
-	void MarkForDeletion(const Path& path);
-	void UnmarkForDeletion(const Path& path);
-	void Cleanup();
+	Path CopyImage(const Path& sourcePath) const override;
+	void SaveImagesTo(const Path& targetDirectory) const override;
+	void MarkForDeletion(const Path& path) override;
+	void UnmarkForDeletion(const Path& path) override;
+	void Cleanup() override;
 
 private:
 	Path m_imagesDirectory = Path("temp");
