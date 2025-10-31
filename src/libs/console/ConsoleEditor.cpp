@@ -103,7 +103,7 @@ void ConsoleEditor::ProcessCommand(const std::string& input)
 		// TODO: else if (command == "Redo") ...
 		else
 		{
-			PrintError("Unknown command. Use 'Help'");
+			throw std::invalid_argument("Command not recognised");
 		}
 	}
 	catch (const std::exception& _)
