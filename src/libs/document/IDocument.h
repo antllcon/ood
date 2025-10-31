@@ -18,11 +18,11 @@ public:
 	IDocument(const IDocument&) = delete;
 	IDocument& operator=(const IDocument&) = delete;
 
-	// virtual void Undo() = 0;
-	// virtual void Redo() = 0;
-	//
-	// virtual bool CanUndo() const = 0;
-	// virtual bool CanRedo() const = 0;
+	virtual void Undo() = 0;
+	virtual void Redo() = 0;
+
+	virtual bool CanUndo() const = 0;
+	virtual bool CanRedo() const = 0;
 
 	virtual size_t GetItemsCount() const = 0;
 	virtual void Save(const Path& path, const IExportStrategy& exporter) const = 0;

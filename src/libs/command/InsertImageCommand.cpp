@@ -10,13 +10,26 @@ InsertImageCommand::InsertImageCommand(
 	, m_image(std::move(image))
 {
 }
+InsertImageCommand::~InsertImageCommand()
+{
+	if (!m_isExecuted)
+	{
+		m_resourceManager->MarkForDeletion(m_image->GetPath());
+		// Меченых удаляем...
+		m_resourceManager->Cleanup();
+	}
+}
 
-void InsertImageCommand::MarkResource()
+void InsertImageCommand::MarkResourceForDeletion()
 {
 	m_resourceManager->MarkForDeletion(m_image->GetPath());
 }
 
-void InsertImageCommand::UnmarkResource()
+void InsertImageCommand::UnmarkResourceForDeletion()
 {
 	m_resourceManager->UnmarkForDeletion(m_image->GetPath());
+}
+
+void InsertImageCommand::CleanupResource()
+{
 }

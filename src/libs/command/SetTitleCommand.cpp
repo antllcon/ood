@@ -1,25 +1,24 @@
 #include "SetTitleCommand.h"
 
-SetTitleCommand::SetTitleCommand(std::shared_ptr<Document> document, const std::string& newTitle)
-	: m_document(std::move(document))
+SetTitleCommand::SetTitleCommand(std::string& targetTitle, const std::string& newTitle)
+	: m_targetTitle(targetTitle)
 	, m_newTitle(newTitle)
 {
 }
 
-void SetTitleCommand::Execute()
+void SetTitleCommand::DoExecute()
 {
-	if (!m_executedOnce)
+	if (!m_isExecuted)
 	{
-		m_oldTitle = m_document->GetTitle();
-		m_executedOnce = true;
+		m_oldTitle = m_targetTitle;
 	}
 
-	m_document->SetTitle(m_newTitle);
+	m_targetTitle = m_newTitle;
 }
 
-void SetTitleCommand::Unexecute()
+void SetTitleCommand::DoUnexecute()
 {
-	m_document->SetTitle(m_oldTitle);
+	m_targetTitle = m_oldTitle;
 }
 
 bool SetTitleCommand::TryToMerge(const ICommand& nextCommand)

@@ -6,18 +6,17 @@ ReplaceTextCommand::ReplaceTextCommand(std::shared_ptr<IParagraph> paragraph, co
 {
 }
 
-void ReplaceTextCommand::Execute()
+void ReplaceTextCommand::DoExecute()
 {
-	if (!m_executedOnce)
+	if (!m_isExecuted)
 	{
 		m_oldText = m_paragraph->GetText();
-		m_executedOnce = true;
 	}
 
 	m_paragraph->SetText(m_newText);
 }
 
-void ReplaceTextCommand::Unexecute()
+void ReplaceTextCommand::DoUnexecute()
 {
 	m_paragraph->SetText(m_oldText);
 }

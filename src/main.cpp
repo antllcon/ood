@@ -10,10 +10,13 @@ int main()
 	try
 	{
 		std::cout << "PROGRAM REDACTOR" << std::endl;
+		Path imagesDirectory = "images";
 
-		std::shared_ptr<IResourceManager> res;
-		Document("Zaeb writing this program without Chat GPT", res);
-		ConsoleEditor console(Document, std::istream&, std::ostream&);
+		auto resourceManager = std::make_shared<ResourceManager>(imagesDirectory);
+		auto document = std::make_unique<Document>("index.html", resourceManager);
+		ConsoleEditor console(std::move(document), std::cin, std::cout);
+
+		console.Run();
 	}
 	catch (std::exception& e)
 	{

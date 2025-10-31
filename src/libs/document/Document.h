@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IDocument.h"
+#include "command/CommandHistory.h"
 #include "resource/IResourceManager.h"
 
 #include <set>
@@ -12,11 +13,11 @@ public:
 	explicit Document(const std::string& title, std::shared_ptr<IResourceManager> resourceManager);
 	~Document() override = default;
 
-	// void Undo() override;
-	// void Redo() override;
-	//
-	// bool CanUndo() const override;
-	// bool CanRedo() const override;
+	void Undo() override;
+	void Redo() override;
+
+	bool CanUndo() const override;
+	bool CanRedo() const override;
 
 	size_t GetItemsCount() const override;
 	void Save(const Path& path, const IExportStrategy& exporter) const override;
@@ -38,5 +39,5 @@ private:
 	std::vector<DocumentItem> m_items;
 	std::set<Path> m_markedForDelete;
 	std::shared_ptr<IResourceManager> m_resourceManager;
-	// History m_history;
+	CommandHistory m_history;
 };

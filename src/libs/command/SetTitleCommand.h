@@ -7,15 +7,17 @@
 class SetTitleCommand final : public ICommand
 {
 public:
-	explicit SetTitleCommand(std::shared_ptr<Document> document, const std::string& newTitle);
+	explicit SetTitleCommand(std::string& targetTitle, const std::string& newTitle);
+	~SetTitleCommand() override = default;
 
-	void Execute() override;
-	void Unexecute() override;
 	bool TryToMerge(const ICommand& nextCommand) override;
 
+protected:
+	void DoExecute() override;
+	void DoUnexecute() override;
+
 private:
-	std::shared_ptr<Document> m_document;
+	std::string& m_targetTitle;
 	std::string m_newTitle;
 	std::string m_oldTitle;
-	bool m_executedOnce = false;
 };

@@ -8,14 +8,16 @@ class ReplaceTextCommand final : public ICommand
 {
 public:
 	explicit ReplaceTextCommand(std::shared_ptr<IParagraph> paragraph, const std::string& newText);
+	~ReplaceTextCommand() override = default;
 
-	void Execute() override;
-	void Unexecute() override;
 	bool TryToMerge(const ICommand& nextCommand) override;
+
+protected:
+	void DoExecute() override;
+	void DoUnexecute() override;
 
 private:
 	std::shared_ptr<IParagraph> m_paragraph;
 	std::string m_newText;
 	std::string m_oldText;
-	bool m_executedOnce = false;
 };

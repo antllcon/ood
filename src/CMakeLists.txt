@@ -6,6 +6,7 @@ set(MODULES
         image
         paragraph
         resource
+        command
 )
 
 foreach (MODULE ${MODULES})

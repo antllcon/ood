@@ -1,5 +1,9 @@
 #include "Document.h"
 
+#include "command/DeleteItemCommand.h"
+#include "command/InsertImageCommand.h"
+#include "command/InsertParagraphCommand.h"
+#include "command/SetTitleCommand.h"
 #include "image/Image.h"
 #include "paragraph/IParagraph.h"
 #include "paragraph/Paragraph.h"
@@ -21,13 +25,33 @@ void AssertIsResourceManagerValid(const std::shared_ptr<IResourceManager>& resou
 		throw std::invalid_argument("ResourceManager cannot be null");
 	}
 }
-}
+} // namespace
 
 Document::Document(const std::string& title, std::shared_ptr<IResourceManager> resourceManager)
 	: m_resourceManager(std::move(resourceManager))
 {
 	AssertIsResourceManagerValid(m_resourceManager);
 	SetTitle(title);
+}
+
+void Document::Undo()
+{
+	m_history.Undo();
+}
+
+void Document::Redo()
+{
+	m_history.Redo();
+}
+
+bool Document::CanUndo() const
+{
+	return m_history.CanUndo();
+}
+
+bool Document::CanRedo() const
+{
+	return m_history.CanRedo();
 }
 
 size_t Document::GetItemsCount() const
@@ -48,20 +72,24 @@ std::string Document::GetTitle() const
 void Document::SetTitle(const std::string& title)
 {
 	AssertIsTitleExist(title);
-	m_title = title;
+
+	// m_title = title;
+
+	m_history.AddAndExecuteCommand(std::make_unique<SetTitleCommand>(m_title, title));
 }
 
 void Document::DeleteItem(size_t index)
 {
 	CheckIndex(index);
-	DocumentItem& item = m_items[index];
 
-	if (auto image = item.GetImage())
-	{
-		m_resourceManager->MarkForDeletion(image->GetPath());
-	}
+	// DocumentItem& item = m_items[index];
+	// if (auto image = item.GetImage())
+	// {
+	// m_resourceManager->MarkForDeletion(image->GetPath());
+	// }
+	// m_items.erase(m_items.begin() + index);
 
-	m_items.erase(m_items.begin() + index);
+	m_history.AddAndExecuteCommand(std::make_unique<DeleteItemCommand>(m_items, m_resourceManager, index));
 }
 
 DocumentItem& Document::GetItem(size_t index)
@@ -80,10 +108,12 @@ std::shared_ptr<IParagraph> Document::InsertParagraph(const std::string& text, s
 {
 	CheckPosition(position);
 	auto paragraph = std::make_shared<Paragraph>(text);
-	DocumentItem item(paragraph);
 
-	size_t pos = position.value_or(m_items.size());
-	m_items.insert(m_items.begin() + pos, std::move(item));
+	// DocumentItem item(paragraph);
+	// size_t pos = position.value_or(m_items.size());
+	// m_items.insert(m_items.begin() + pos, std::move(item));
+
+	m_history.AddAndExecuteCommand(std::make_unique<InsertParagraphCommand>(m_items, paragraph, position));
 	return paragraph;
 }
 
@@ -91,12 +121,13 @@ std::shared_ptr<IImage> Document::InsertImage(const Path& path, int width, int h
 {
 	CheckPosition(position);
 	Path newPath = m_resourceManager->CopyImage(path);
-
 	auto image = std::make_shared<Image>(newPath, width, height);
-	DocumentItem item(image);
 
-	size_t pos = position.value_or(m_items.size());
-	m_items.insert(m_items.begin() + pos, std::move(item));
+	// DocumentItem item(image);
+	// size_t pos = position.value_or(m_items.size());
+	// m_items.insert(m_items.begin() + pos, std::move(item));
+
+	m_history.AddAndExecuteCommand(std::make_unique<InsertImageCommand>(m_items, image, m_resourceManager, position));
 	return image;
 }
 

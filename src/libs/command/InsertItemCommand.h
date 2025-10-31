@@ -8,16 +8,19 @@ class InsertItemCommand : public ICommand
 {
 public:
 	InsertItemCommand(std::vector<DocumentItem>& items, DocumentItem item, std::optional<size_t> position);
-
-	void Execute() override;
-	void Unexecute() override;
+	~InsertItemCommand() override = default;
 
 protected:
-	virtual void MarkResource()
+	void DoExecute() override;
+	void DoUnexecute() override;
+
+	virtual void MarkResourceForDeletion()
 	{
 	}
-
-	virtual void UnmarkResource()
+	virtual void UnmarkResourceForDeletion()
+	{
+	}
+	virtual void CleanupResource()
 	{
 	}
 

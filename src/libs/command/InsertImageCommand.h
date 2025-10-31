@@ -6,14 +6,13 @@
 class InsertImageCommand final : public InsertItemCommand
 {
 public:
-	InsertImageCommand(std::vector<DocumentItem>& items,
-		std::shared_ptr<IImage> image,
-		std::shared_ptr<IResourceManager> resourceManager,
-		std::optional<size_t> position);
+	InsertImageCommand(std::vector<DocumentItem>& items, std::shared_ptr<IImage> image, std::shared_ptr<IResourceManager> resourceManager, std::optional<size_t> position);
+	~InsertImageCommand() override;
 
 protected:
-	void MarkResource() override;
-	void UnmarkResource() override;
+	void MarkResourceForDeletion() override;
+	void UnmarkResourceForDeletion() override;
+	void CleanupResource() override;
 
 private:
 	std::shared_ptr<IResourceManager> m_resourceManager;

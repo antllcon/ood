@@ -12,7 +12,19 @@ DeleteItemCommand::DeleteItemCommand(
 {
 }
 
-void DeleteItemCommand::Execute()
+DeleteItemCommand::~DeleteItemCommand()
+{
+	if (m_isExecuted)
+	{
+		if (auto image = GetImageFromItem())
+		{
+			m_resourceManager->MarkForDeletion(image->GetPath());
+			m_resourceManager->Cleanup();
+		}
+	}
+}
+
+void DeleteItemCommand::DoExecute()
 {
 	m_deletedItem.emplace(std::move(m_items[m_position]));
 	m_items.erase(m_items.begin() + m_position);
@@ -23,7 +35,7 @@ void DeleteItemCommand::Execute()
 	}
 }
 
-void DeleteItemCommand::Unexecute()
+void DeleteItemCommand::DoUnexecute()
 {
 	if (auto image = m_deletedItem->GetImage())
 	{
@@ -32,4 +44,15 @@ void DeleteItemCommand::Unexecute()
 
 	m_items.insert(m_items.begin() + m_position, std::move(*m_deletedItem));
 	m_deletedItem.reset();
+}
+
+
+std::shared_ptr<IImage> DeleteItemCommand::GetImageFromItem()
+{
+	if (m_deletedItem.has_value())
+	{
+			return m_deletedItem->GetImage();
+	}
+
+	return nullptr;
 }

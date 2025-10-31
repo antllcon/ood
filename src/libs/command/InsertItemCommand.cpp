@@ -7,15 +7,15 @@ InsertItemCommand::InsertItemCommand(std::vector<DocumentItem>& items, DocumentI
 	m_position = position.value_or(m_items.size());
 }
 
-void InsertItemCommand::Execute()
+void InsertItemCommand::DoExecute()
 {
-	UnmarkResource();
+	UnmarkResourceForDeletion();
 	m_items.insert(m_items.begin() + m_position, std::move(m_item));
 }
 
-void InsertItemCommand::Unexecute()
+void InsertItemCommand::DoUnexecute()
 {
 	m_item = std::move(m_items[m_position]);
 	m_items.erase(m_items.begin() + m_position);
-	MarkResource();
+	MarkResourceForDeletion();
 }

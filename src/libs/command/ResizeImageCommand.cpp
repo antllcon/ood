@@ -9,19 +9,18 @@ ResizeImageCommand::ResizeImageCommand(std::shared_ptr<IImage> image, unsigned i
 {
 }
 
-void ResizeImageCommand::Execute()
+void ResizeImageCommand::DoExecute()
 {
-	if (!m_executedOnce)
+	if (!m_isExecuted)
 	{
 		m_oldWidth = m_image->GetWidth();
 		m_oldHeight = m_image->GetHeight();
-		m_executedOnce = true;
 	}
 
 	m_image->Resize(m_newWidth, m_newHeight);
 }
 
-void ResizeImageCommand::Unexecute()
+void ResizeImageCommand::DoUnexecute()
 {
 	m_image->Resize(m_oldWidth, m_oldHeight);
 }

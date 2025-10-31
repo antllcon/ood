@@ -8,8 +8,17 @@ public:
 	ICommand(const ICommand&) = delete;
 	ICommand& operator=(const ICommand&) = delete;
 
-	virtual void Execute() = 0;
-	virtual void Unexecute() = 0;
+	virtual void Execute()
+	{
+		DoExecute();
+		m_isExecuted = true;
+	}
+
+	virtual void Unexecute()
+	{
+		DoUnexecute();
+		m_isExecuted = false;
+	}
 
 	virtual bool TryToMerge(const ICommand& commandToMerge)
 	{
@@ -18,4 +27,10 @@ public:
 
 protected:
 	ICommand() = default;
+
+	virtual void DoExecute() = 0;
+	virtual void DoUnexecute() = 0;
+
+	bool m_isExecuted = false;
+
 };

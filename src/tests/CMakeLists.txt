@@ -7,6 +7,7 @@ target_link_libraries(tests PRIVATE
         image
         paragraph
         resource
+        command
         GTest::gmock_main)
 
 include(GoogleTest)
