@@ -19,7 +19,6 @@ DeleteItemCommand::~DeleteItemCommand()
 		if (auto image = GetImageFromItem())
 		{
 			m_resourceManager->MarkForDeletion(image->GetPath());
-			m_resourceManager->Cleanup();
 		}
 	}
 }

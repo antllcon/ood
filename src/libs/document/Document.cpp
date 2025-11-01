@@ -36,6 +36,11 @@ Document::Document(const std::string& title, std::shared_ptr<IResourceManager> r
 	SetTitle(title);
 }
 
+Document::~Document()
+{
+	m_resourceManager->Cleanup();
+}
+
 void Document::Undo()
 {
 	m_history.Undo();
@@ -63,7 +68,10 @@ size_t Document::GetItemsCount() const
 
 void Document::Save(const Path& path, const IExportStrategy& exporter) const
 {
+	Path saveDir = path.parent_path();
+	Path imagesSaveDir = saveDir / "images";
 	exporter.Export(*this, path);
+	m_resourceManager->SaveImagesTo(imagesSaveDir);
 }
 
 std::string Document::GetTitle() const

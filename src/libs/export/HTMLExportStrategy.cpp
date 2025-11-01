@@ -106,12 +106,12 @@ std::string HTMLExportStrategy::GenerateParagraphHTML(const std::string& text)
 
 std::string HTMLExportStrategy::GenerateImageHTML(const std::shared_ptr<const IImage>& image)
 {
-	const std::string relativePath = image->GetPath().generic_string();
+	Path relativePath = "images" / image->GetPath();
 
 	std::ostringstream oss;
-	oss << "  <img src=\"" << EscapeHTML(relativePath) << "\""
-		<< " width=\"" << image->GetWidth() << "\""
-		<< " height=\"" << image->GetHeight() << "\">\n";
+	oss << "  <img src=\"" << EscapeHTML(relativePath.generic_string()) << "\""
+			<< " width=\"" << image->GetWidth() << "\""
+			<< " height=\"" << image->GetHeight() << "\">\n";
 
 	return oss.str();
 }

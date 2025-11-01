@@ -11,7 +11,7 @@ class Document final : public IDocument
 {
 public:
 	explicit Document(const std::string& title, std::shared_ptr<IResourceManager> resourceManager);
-	~Document() override = default;
+	~Document() override;
 
 	void Undo() override;
 	void Redo() override;
@@ -40,7 +40,6 @@ private:
 
 	std::string m_title;
 	std::vector<DocumentItem> m_items;
-	std::set<Path> m_markedForDelete;
 	std::shared_ptr<IResourceManager> m_resourceManager;
 	CommandHistory m_history;
 };

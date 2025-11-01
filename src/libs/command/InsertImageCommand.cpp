@@ -16,7 +16,6 @@ InsertImageCommand::~InsertImageCommand()
 	{
 		m_resourceManager->MarkForDeletion(m_image->GetPath());
 		// Меченых удаляем...
-		m_resourceManager->Cleanup();
 	}
 }
 

@@ -20,17 +20,30 @@ std::string GenerateName(const Path& sourcePath)
 	auto time = std::chrono::system_clock::to_time_t(now);
 
 	std::random_device rd;
-	std::uniform_int_distribution<int> dis(0, 99);
+	std::uniform_int_distribution<int> dis(0, 999);
 
 	std::stringstream ss;
-	ss << std::put_time(std::localtime(&time), " [%H:%M (%Ss)]") << " " << dis(rd);
+	ss << std::put_time(std::localtime(&time), "%Y%m%d-%H%M%S");
+	ss << "_" << std::setw(3) << std::setfill('0') << dis(rd);
 	return ss.str() + sourcePath.extension().string();
 }
 
 Path FindUniquePath(const Path& directory, const Path& sourcePath)
 {
-	std::string name = GenerateName(sourcePath);
-	Path destPath = directory / name;
+	std::string baseName = GenerateName(sourcePath);
+	Path destPath = directory / baseName;
+
+	int counter = 1;
+	const std::string stem = destPath.stem().string();
+	const std::string ext = destPath.extension().string();
+
+	while (std::filesystem::exists(destPath))
+	{
+		const std::string nextName = stem + "_" + std::to_string(counter) + ext;
+		destPath = directory / nextName;
+		++counter;
+	}
+
 	return destPath;
 }
 
