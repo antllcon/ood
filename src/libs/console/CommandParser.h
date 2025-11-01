@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include <optional>
-#include <stdexcept>
 #include <filesystem>
 
 using Path = std::filesystem::path;

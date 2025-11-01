@@ -29,6 +29,9 @@ public:
 	DocumentItem& GetItem(size_t index) override;
 	const ConstDocumentItem& GetItem(size_t index) const override;
 
+	void ReplaceText(size_t index, const std::string& text) override;
+	void ResizeImage(size_t index, unsigned int width, unsigned int height) override;
+
 	std::shared_ptr<IParagraph> InsertParagraph(const std::string& text, std::optional<size_t> position = std::nullopt) override;
 	std::shared_ptr<IImage> InsertImage(const Path& path, int width, int height, std::optional<size_t> position = std::nullopt) override;
 private:

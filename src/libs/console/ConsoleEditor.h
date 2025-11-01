@@ -19,18 +19,19 @@ public:
 private:
 	void ProcessCommand(const std::string& input);
 
-	void HandleInsertParagraph(const std::vector<std::string>& args) const;
-	void HandleInsertImage(const std::vector<std::string>& args) const;
-	void HandleSetTitle(const std::vector<std::string>& args) const;
-	void HandleDeleteItem(const std::vector<std::string>& args) const;
-	void HandleReplaceText(const std::vector<std::string>& args) const;
-	void HandleResizeImage(const std::vector<std::string>& args) const;
-	void HandleList() const;
+	void HandleInsertParagraph(const std::vector<std::string>& args);
+	void HandleInsertImage(const std::vector<std::string>& args) ;
+	void HandleSetTitle(const std::vector<std::string>& args);
+	void HandleDeleteItem(const std::vector<std::string>& args);
+	void HandleReplaceText(const std::vector<std::string>& args);
+	void HandleResizeImage(const std::vector<std::string>& args);
+	void HandleUndo();
+	void HandleRedo();
+
 	void HandleSave(const std::vector<std::string>& args) const;
-
-	// TODO: HandleUndo/HandleRedo (когда IDocument их реализует)
-
+	void HandleList() const;
 	void PrintHelp() const;
+	static void PrintError(const std::string& message);
 
 	std::unique_ptr<IDocument> m_document;
 	std::istream& m_in;

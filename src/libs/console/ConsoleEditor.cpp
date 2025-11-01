@@ -4,6 +4,8 @@
 #include "image/IImage.h"
 #include "paragraph/IParagraph.h"
 
+#include <iostream>
+
 namespace
 {
 void AsssertIsDocumentExist(const std::unique_ptr<IDocument>& document)
@@ -99,19 +101,26 @@ void ConsoleEditor::ProcessCommand(const std::string& input)
 		{
 			m_isRunning = false;
 		}
-		// TODO: else if (command == "Undo") ...
-		// TODO: else if (command == "Redo") ...
+		else if (command == "Undo")
+		{
+			HandleUndo();
+		}
+		else if (command == "Redo")
+		{
+			HandleRedo();
+		}
 		else
 		{
 			throw std::invalid_argument("Command not recognised");
 		}
 	}
-	catch (const std::exception& _)
+	catch (const std::exception& e)
 	{
+		PrintError(e.what());
 	}
 }
 
-void ConsoleEditor::HandleInsertParagraph(const std::vector<std::string>& args) const
+void ConsoleEditor::HandleInsertParagraph(const std::vector<std::string>& args)
 {
 	if (args.size() < 2)
 	{
@@ -122,10 +131,9 @@ void ConsoleEditor::HandleInsertParagraph(const std::vector<std::string>& args) 
 	std::string text = CommandParser::Join(args, 1);
 
 	m_document->InsertParagraph(text, pos);
-	m_out << "Paragraph inserted.\n";
 }
 
-void ConsoleEditor::HandleInsertImage(const std::vector<std::string>& args) const
+void ConsoleEditor::HandleInsertImage(const std::vector<std::string>& args)
 {
 	if (args.size() != 4)
 	{
@@ -137,10 +145,9 @@ void ConsoleEditor::HandleInsertImage(const std::vector<std::string>& args) cons
 	Path path(args[3]);
 
 	m_document->InsertImage(path, dims.first, dims.second, pos);
-	m_out << "Image inserted.\n";
 }
 
-void ConsoleEditor::HandleSetTitle(const std::vector<std::string>& args) const
+void ConsoleEditor::HandleSetTitle(const std::vector<std::string>& args)
 {
 	if (args.empty())
 	{
@@ -148,10 +155,9 @@ void ConsoleEditor::HandleSetTitle(const std::vector<std::string>& args) const
 	}
 
 	m_document->SetTitle(CommandParser::Join(args, 0));
-	m_out << "Title set.\n";
 }
 
-void ConsoleEditor::HandleDeleteItem(const std::vector<std::string>& args) const
+void ConsoleEditor::HandleDeleteItem(const std::vector<std::string>& args)
 {
 	if (args.size() != 1)
 	{
@@ -160,10 +166,9 @@ void ConsoleEditor::HandleDeleteItem(const std::vector<std::string>& args) const
 
 	size_t pos = std::stoul(args[0]);
 	m_document->DeleteItem(pos);
-	m_out << "Item deleted.\n";
 }
 
-void ConsoleEditor::HandleReplaceText(const std::vector<std::string>& args) const
+void ConsoleEditor::HandleReplaceText(const std::vector<std::string>& args)
 {
 	if (args.size() < 2)
 	{
@@ -173,20 +178,10 @@ void ConsoleEditor::HandleReplaceText(const std::vector<std::string>& args) cons
 	size_t pos = std::stoul(args[0]);
 	std::string text = CommandParser::Join(args, 1);
 
-	DocumentItem& item = m_document->GetItem(pos);
-	auto paragraph = item.GetParagraph();
-
-	if (!paragraph)
-	{
-		throw std::invalid_argument(
-			"Item at position " + args[0] + " is not a paragraph.");
-	}
-
-	paragraph->SetText(text); // (Пока нет Undo)
-	m_out << "Text replaced.\n";
+	m_document->ReplaceText(pos, text);
 }
 
-void ConsoleEditor::HandleResizeImage(const std::vector<std::string>& args) const
+void ConsoleEditor::HandleResizeImage(const std::vector<std::string>& args)
 {
 	if (args.size() != 3)
 	{
@@ -196,17 +191,31 @@ void ConsoleEditor::HandleResizeImage(const std::vector<std::string>& args) cons
 	size_t pos = std::stoul(args[0]);
 	auto dims = CommandParser::ParseDimensions(args[1], args[2]);
 
-	DocumentItem& item = m_document->GetItem(pos);
-	auto image = item.GetImage();
+	m_document->ResizeImage(pos, dims.first, dims.second);
+}
 
-	if (!image)
+void ConsoleEditor::HandleUndo()
+{
+	if (m_document->CanUndo())
 	{
-		throw std::invalid_argument(
-			"Item at position " + args[0] + " is not an image.");
+		m_document->Undo();
 	}
+	else
+	{
+		throw std::invalid_argument("Can't undo");
+	}
+}
 
-	image->Resize(dims.first, dims.second); // (Пока нет Undo)
-	m_out << "Image resized.\n";
+void ConsoleEditor::HandleRedo()
+{
+	if (m_document->CanRedo())
+	{
+		m_document->Redo();
+	}
+	else
+	{
+		throw std::invalid_argument("Can't redo");
+	}
 }
 
 void ConsoleEditor::HandleList() const
@@ -257,7 +266,6 @@ void ConsoleEditor::HandleSave(const std::vector<std::string>& args) const
 
 void ConsoleEditor::PrintHelp() const
 {
-	m_out << "--- C++ Document Editor ---\n";
 	m_out << "Commands:\n";
 	m_out << "  InsertParagraph <pos|end> <text...>		- Insert paragraph\n";
 	m_out << "  InsertImage <pos|end> <w> <h> <path>	- Insert image\n";
@@ -267,8 +275,14 @@ void ConsoleEditor::PrintHelp() const
 	m_out << "  ResizeImage <pos> <w> <h>				- Resize image\n";
 	m_out << "  List									- List document items\n";
 	m_out << "  Save <path.html>						- Save document as HTML\n";
-	// m_out << "  Undo\n";
-	// m_out << "  Redo\n";
+	m_out << "  Undo									- Undo move\n";
+	m_out << "  Redo									- Redo move\n";
 	m_out << "  Help									- Show this help\n";
 	m_out << "  Exit									- Quit the editor\n";
+}
+
+void ConsoleEditor::PrintError(const std::string& message)
+{
+	// (ES.45) Ошибки всегда выводим в std::cerr
+	std::cerr << "ERROR: " << message << "\n";
 }

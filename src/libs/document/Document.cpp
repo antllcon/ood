@@ -3,6 +3,8 @@
 #include "command/DeleteItemCommand.h"
 #include "command/InsertImageCommand.h"
 #include "command/InsertParagraphCommand.h"
+#include "command/ReplaceTextCommand.h"
+#include "command/ResizeImageCommand.h"
 #include "command/SetTitleCommand.h"
 #include "image/Image.h"
 #include "paragraph/IParagraph.h"
@@ -102,6 +104,28 @@ const ConstDocumentItem& Document::GetItem(size_t index) const
 {
 	CheckIndex(index);
 	return m_items[index];
+}
+
+void Document::ReplaceText(size_t index, const std::string& text)
+{
+	CheckIndex(index);
+	auto p = m_items[index].GetParagraph();
+	if (!p)
+	{
+		throw std::invalid_argument("Item at index " + std::to_string(index) + " is not a paragraph");
+	}
+	m_history.AddAndExecuteCommand(std::make_unique<ReplaceTextCommand>(p, text));
+}
+
+void Document::ResizeImage(size_t index, unsigned int width, unsigned int height)
+{
+	CheckIndex(index);
+	auto img = m_items[index].GetImage();
+	if (!img)
+	{
+		throw std::invalid_argument("Item at index " + std::to_string(index) + " is not an image");
+	}
+	m_history.AddAndExecuteCommand(std::make_unique<ResizeImageCommand>(img, width, height));
 }
 
 std::shared_ptr<IParagraph> Document::InsertParagraph(const std::string& text, std::optional<size_t> position)

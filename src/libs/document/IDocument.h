@@ -34,6 +34,9 @@ public:
 	virtual DocumentItem& GetItem(size_t index) = 0;
 	virtual const ConstDocumentItem& GetItem(size_t index) const = 0;
 
+	virtual void ReplaceText(size_t index, const std::string& text) = 0;
+	virtual void ResizeImage(size_t index, unsigned int width, unsigned int height) = 0;
+
 	virtual std::shared_ptr<IParagraph> InsertParagraph(const std::string& text, std::optional<size_t> position = std::nullopt) = 0;
 	virtual std::shared_ptr<IImage> InsertImage(const Path& path, int width, int height, std::optional<size_t> position = std::nullopt) = 0;
 

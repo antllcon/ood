@@ -5,23 +5,33 @@
 #include <cstdlib>
 #include <iostream>
 
+std::shared_ptr<IResourceManager> CreateRealResourceManager()
+{
+	Path imagesDir = "images";
+	return std::make_shared<ResourceManager>(imagesDir);
+}
+
 int main()
 {
 	try
 	{
 		std::cout << "PROGRAM REDACTOR" << std::endl;
-		Path imagesDirectory = "images";
+		auto resourceManager = CreateRealResourceManager();
 
-		auto resourceManager = std::make_shared<ResourceManager>(imagesDirectory);
-		auto document = std::make_unique<Document>("index.html", resourceManager);
-		ConsoleEditor console(std::move(document), std::cin, std::cout);
+		auto document = std::make_unique<Document>(
+			"Document",
+			resourceManager);
 
-		console.Run();
+		ConsoleEditor editor(std::move(document), std::cin, std::cout);
+		editor.Run();
 	}
 	catch (std::exception& e)
 	{
 		std::cerr << "Error: " << e.what() << std::endl;
-		return EXIT_FAILURE;
+	}
+	catch (...)
+	{
+		std::cerr << "CRITICAL ERROR: Unknown exception" << std::endl;
 	}
 
 	return EXIT_SUCCESS;
