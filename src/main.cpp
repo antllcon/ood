@@ -2,8 +2,6 @@
 #include "graphics/modern_graphics_lib.h"
 #include "graphics/shape_drawing_lib.h"
 #include "libs/graphics/adapter.h"
-#include "libs/graphics/modern_graphics_lib.h"
-#include "libs/graphics/shape_drawing_lib.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -27,10 +25,9 @@ void PaintPictureOnCanvas()
 	PaintPicture(painter);
 }
 
-void PaintPictureOnModernGraphicsRenderer()
+void PaintPictureOnModernGraphicsRendererClassAdapter()
 {
-	modern_graphics_lib::ModernGraphicsRenderer renderer(std::cout);
-	RendererToPainterAdapter adapter(renderer);
+	ClassRendererToPainterAdapter adapter(std::cout);
 	shape_drawing_lib::CanvasPainter painter(adapter);
 	PaintPicture(painter);
 }
@@ -47,7 +44,7 @@ int main()
 		std::string userInput;
 		if (getline(std::cin, userInput) && (userInput == "y" || userInput == "Y"))
 		{
-			app::PaintPictureOnModernGraphicsRenderer();
+			app::PaintPictureOnModernGraphicsRendererClassAdapter();
 		}
 		else
 		{

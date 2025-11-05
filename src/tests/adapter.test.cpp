@@ -8,12 +8,11 @@
 using namespace modern_graphics_lib;
 
 // Проверка: при создании адаптера вызывается BeginDraw()
-TEST(RendererToPainterAdapter, BeginDrawCalledOnConstruction)
+TEST(ClassRendererToPainterAdapter, BeginDrawCalledOnConstruction)
 {
     std::ostringstream output;
     {
-        ModernGraphicsRenderer renderer(output);
-        RendererToPainterAdapter adapter(renderer);
+        ClassRendererToPainterAdapter adapter(output);
     }
 
     std::string result = output.str();
@@ -21,12 +20,11 @@ TEST(RendererToPainterAdapter, BeginDrawCalledOnConstruction)
 }
 
 // Проверка: при уничтожении адаптера вызывается EndDraw()
-TEST(RendererToPainterAdapter, EndDrawCalledOnDestruction)
+TEST(ClassRendererToPainterAdapter, EndDrawCalledOnDestruction)
 {
     std::ostringstream output;
     {
-        ModernGraphicsRenderer renderer(output);
-        RendererToPainterAdapter adapter(renderer);
+        ClassRendererToPainterAdapter adapter(output);
     }
 
     std::string result = output.str();
@@ -34,26 +32,24 @@ TEST(RendererToPainterAdapter, EndDrawCalledOnDestruction)
 }
 
 // Проверка: MoveTo() НЕ выводит линию
-TEST(RendererToPainterAdapter, MoveToDoesNotProduceOutput)
+TEST(ClassRendererToPainterAdapter, MoveToDoesNotProduceOutput)
 {
     std::ostringstream output;
-    ModernGraphicsRenderer renderer(output);
     {
-        RendererToPainterAdapter adapter(renderer);
+        ClassRendererToPainterAdapter adapter(output);
         adapter.MoveTo(10, 20);
     }
-    std::string result = output.str();
 
+    std::string result = output.str();
     EXPECT_EQ(result.find("line"), std::string::npos);
 }
 
 // Проверка: LineTo() выводит корректную линию с последней MoveTo позиции
-TEST(RendererToPainterAdapter, LineToDrawsLineCorrectly)
+TEST(ClassRendererToPainterAdapter, LineToDrawsLineCorrectly)
 {
     std::ostringstream output;
-    ModernGraphicsRenderer renderer(output);
     {
-        RendererToPainterAdapter adapter(renderer);
+        ClassRendererToPainterAdapter adapter(output);
         adapter.MoveTo(10, 20);
         adapter.LineTo(30, 40);
     }
@@ -66,12 +62,11 @@ TEST(RendererToPainterAdapter, LineToDrawsLineCorrectly)
 }
 
 // Проверка: последовательные LineTo используют предыдущую конечную точку как старт
-TEST(RendererToPainterAdapter, MultipleLineSegmentsUseLastPosition)
+TEST(ClassRendererToPainterAdapter, MultipleLineSegmentsUseLastPosition)
 {
     std::ostringstream output;
-    ModernGraphicsRenderer renderer(output);
     {
-        RendererToPainterAdapter adapter(renderer);
+        ClassRendererToPainterAdapter adapter(output);
         adapter.MoveTo(0, 0);
         adapter.LineTo(5, 5);
         adapter.LineTo(10, 10);
@@ -85,18 +80,17 @@ TEST(RendererToPainterAdapter, MultipleLineSegmentsUseLastPosition)
 }
 
 // Проверка: адаптер корректно используется через CanvasPainter
-TEST(RendererToPainterAdapter, WorksWithCanvasPainterAndShapes)
+TEST(ClassRendererToPainterAdapter, WorksWithCanvasPainterAndShapes)
 {
-	std::ostringstream output;
-	ModernGraphicsRenderer renderer(output);
-	RendererToPainterAdapter adapter(renderer);
-	shape_drawing_lib::CanvasPainter painter(adapter);
+    std::ostringstream output;
+    ClassRendererToPainterAdapter adapter(output);
+    shape_drawing_lib::CanvasPainter painter(adapter);
 
-	shape_drawing_lib::Triangle t({0, 0}, {10, 0}, {10, 10});
-	painter.Draw(t);
+    shape_drawing_lib::Triangle t({0, 0}, {10, 0}, {10, 10});
+    painter.Draw(t);
 
-	std::string result = output.str();
-	EXPECT_NE(result.find("<line"), std::string::npos);
-	EXPECT_NE(result.find(R"(fromX="0")"), std::string::npos);
-	EXPECT_NE(result.find(R"(toX="10")"), std::string::npos);
+    std::string result = output.str();
+    EXPECT_NE(result.find("<line"), std::string::npos);
+    EXPECT_NE(result.find(R"(fromX="0")"), std::string::npos);
+    EXPECT_NE(result.find(R"(toX="10")"), std::string::npos);
 }

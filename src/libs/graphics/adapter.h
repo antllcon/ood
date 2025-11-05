@@ -1,26 +1,22 @@
 #pragma once
-#include "graphics_lib.h"
-#include "modern_graphics_lib.h"
+#include "graphics/graphics_lib.h"
+#include "graphics/modern_graphics_lib.h"
 
-namespace modern_graphics_lib
-{
-class ModernGraphicsRenderer;
-}
-
-class RendererToPainterAdapter final : public graphics_lib::ICanvas
+class ClassRendererToPainterAdapter final : public graphics_lib::ICanvas
+	, private modern_graphics_lib::ModernGraphicsRenderer
 {
 public:
-	explicit RendererToPainterAdapter(modern_graphics_lib::ModernGraphicsRenderer& renderer)
-		: m_renderer(renderer)
+	explicit ClassRendererToPainterAdapter(std::ostream& output)
+		: modern_graphics_lib::ModernGraphicsRenderer(output)
 		, m_currentX(0)
 		, m_currentY(0)
 	{
-		m_renderer.BeginDraw();
+		BeginDraw();
 	}
 
-	~RendererToPainterAdapter() override
+	~ClassRendererToPainterAdapter() override
 	{
-		m_renderer.EndDraw();
+		EndDraw();
 	}
 
 	void MoveTo(int x, int y) override
@@ -31,17 +27,14 @@ public:
 
 	void LineTo(int x, int y) override
 	{
-		m_renderer.DrawLine(
+		DrawLine(
 			modern_graphics_lib::Point(m_currentX, m_currentY),
-			modern_graphics_lib::Point(x, y)
-		);
-
+			modern_graphics_lib::Point(x, y));
 		m_currentX = x;
 		m_currentY = y;
 	}
 
 private:
-	modern_graphics_lib::ModernGraphicsRenderer& m_renderer;
 	int m_currentX;
 	int m_currentY;
 };
