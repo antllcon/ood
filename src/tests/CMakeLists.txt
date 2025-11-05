@@ -1,14 +1,5 @@
-add_executable(tests redactor.test.cpp)
-target_link_libraries(tests PRIVATE
-        console
-        document
-        documentItem
-        export
-        image
-        paragraph
-        resource
-        command
-        GTest::gmock_main)
+add_executable(tests adapter.test.cpp)
+target_link_libraries(tests PRIVATE graphics GTest::gmock_main)
 
 include(GoogleTest)
 gtest_discover_tests(tests)

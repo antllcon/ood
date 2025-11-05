@@ -1,13 +1,4 @@
-set(MODULES
-        console
-        document
-        documentItem
-        export
-        image
-        paragraph
-        resource
-        command
-)
+set(MODULES graphics)
 
 foreach (MODULE ${MODULES})
     add_subdirectory(libs/${MODULE})
