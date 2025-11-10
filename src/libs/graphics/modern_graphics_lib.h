@@ -1,5 +1,6 @@
 #pragma once
 #include <boost/format.hpp>
+#include <iomanip>
 
 namespace modern_graphics_lib
 {
@@ -15,11 +16,25 @@ public:
 	int y;
 };
 
+class RGBAColor
+{
+public:
+	RGBAColor(float r, float g, float b, float a)
+		: r(r)
+		, g(g)
+		, b(b)
+		, a(a)
+	{
+	}
+	float r, g, b, a;
+};
+
 class ModernGraphicsRenderer
 {
 public:
 	explicit ModernGraphicsRenderer(std::ostream& strm)
 		: m_out(strm)
+		, m_defaultStreamFlags(strm.flags())
 	{
 	}
 
@@ -29,6 +44,7 @@ public:
 		{
 			EndDraw();
 		}
+		m_out.flags(m_defaultStreamFlags);
 	}
 
 	void BeginDraw()
@@ -42,15 +58,18 @@ public:
 		m_drawing = true;
 	}
 
-	void DrawLine(const Point& start, const Point& end)
+	void DrawLine(const Point& start, const Point& end, const RGBAColor& color)
 	{
 		if (!m_drawing)
 		{
 			throw std::logic_error("DrawLine is allowed between BeginDraw()/EndDraw() only");
 		}
-		m_out << boost::format(R"(  <line fromX="%1%" fromY="%2%" toX="%3%" toY="%4%"/>)")
-				% start.x % start.y % end.x % end.y
-			  << std::endl;
+
+		m_out << std::fixed << std::setprecision(2);
+		m_out << (boost::format(R"(  <line fromX="%1%" fromY="%2%" toX="%3%" toY="%4%">\n    <color r="%5%" g="%6%" b="%7%" a="%8%"/>\n  </line>\n)")
+			% start.x % start.y % end.x % end.y % color.r % color.g % color.b % color.a);
+		m_out.copyfmt(std::ios(nullptr));
+		m_out.flags(m_defaultStreamFlags);
 	}
 
 	void EndDraw()
@@ -66,5 +85,6 @@ public:
 private:
 	std::ostream& m_out;
 	bool m_drawing = false;
+	std::ios_base::fmtflags m_defaultStreamFlags;
 };
 } // namespace modern_graphics_lib
