@@ -1,4 +1,4 @@
-set(MODULES graphics)
+set(MODULES composite)
 
 foreach (MODULE ${MODULES})
     add_subdirectory(libs/${MODULE})
