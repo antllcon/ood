@@ -56,28 +56,37 @@ std::unique_ptr<IShape> Triangle::Clone() const
 	return clone;
 }
 
-// TODO: написать чуть лучше (красиво)
 void Triangle::Draw(ICanvas& canvas) const
 {
-	double w = m_frame.GetWidth();
+	const double halfWidth = m_frame.GetWidth() / 2.0;
+	const double centerX = m_frame.LeftTop.x + halfWidth;
 
-	Point p1 = {m_frame.LeftTop.x + w / 2, m_frame.LeftTop.y};
-	Point p2 = {m_frame.LeftTop.x, m_frame.RightBottom.y};
-	Point p3 = {m_frame.RightBottom.x, m_frame.RightBottom.y};
+	const Point topVertex{centerX, m_frame.LeftTop.y};
+	const Point leftBottom{m_frame.LeftTop.x, m_frame.RightBottom.y};
+	const Point rightBottom{m_frame.RightBottom.x, m_frame.RightBottom.y};
 
-	if (m_fill->IsEnabled().value_or(false))
+	const std::vector<Point> vertices{topVertex, leftBottom, rightBottom};
+
+	if (auto fillEnabled = m_fill->IsEnabled(); fillEnabled.value_or(false))
 	{
-		canvas.SetFillColor(*m_fill->GetColor());
-		canvas.FillPolygon({p1, p2, p3});
+		if (auto fillColor = m_fill->GetColor())
+		{
+			canvas.SetFillColor(*fillColor);
+			canvas.FillPolygon(vertices);
+		}
 	}
 
-	if (m_line->IsEnabled().value_or(false))
+	if (auto lineEnabled = m_line->IsEnabled(); lineEnabled.value_or(false))
 	{
-		canvas.SetStrokeColor(*m_line->GetColor());
-		canvas.SetStrokeWidth(*m_line->GetThickness());
+		if (auto lineColor = m_line->GetColor())
+			if (auto lineThickness = m_line->GetThickness())
+			{
+				canvas.SetStrokeColor(*lineColor);
+				canvas.SetStrokeWidth(*lineThickness);
 
-		canvas.DrawLine(p1, p2);
-		canvas.DrawLine(p2, p3);
-		canvas.DrawLine(p3, p1);
+				canvas.DrawLine(topVertex, leftBottom);
+				canvas.DrawLine(leftBottom, rightBottom);
+				canvas.DrawLine(rightBottom, topVertex);
+			}
 	}
 }

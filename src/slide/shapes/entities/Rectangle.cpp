@@ -8,26 +8,35 @@ Rectangle::Rectangle(const Frame& frame)
 {
 }
 
-// TODO: написать красивее
 void Rectangle::Draw(ICanvas& canvas) const
 {
+	const auto& topLeft = m_frame.LeftTop;
+	const auto& bottomRight = m_frame.RightBottom;
+	Point topRight{bottomRight.x, topLeft.y};
+	Point bottomLeft{topLeft.x, bottomRight.y};
+
 	if (m_fill->IsEnabled().value_or(false))
 	{
-		canvas.SetFillColor(*m_fill->GetColor());
-		canvas.FillPolygon({m_frame.LeftTop,
-			{m_frame.RightBottom.x, m_frame.LeftTop.y},
-			m_frame.RightBottom,
-			{m_frame.LeftTop.x, m_frame.RightBottom.y}});
+		if (auto color = m_fill->GetColor())
+		{
+			canvas.SetFillColor(*color);
+			canvas.FillPolygon({topLeft, topRight, bottomRight, bottomLeft});
+		}
 	}
 
 	if (m_line->IsEnabled().value_or(false))
 	{
-		canvas.SetStrokeColor(*m_line->GetColor());
-		canvas.SetStrokeWidth(*m_line->GetThickness());
-		canvas.DrawLine(m_frame.LeftTop, {m_frame.RightBottom.x, m_frame.LeftTop.y});
-		canvas.DrawLine({m_frame.RightBottom.x, m_frame.LeftTop.y}, m_frame.RightBottom);
-		canvas.DrawLine(m_frame.RightBottom, {m_frame.LeftTop.x, m_frame.RightBottom.y});
-		canvas.DrawLine({m_frame.LeftTop.x, m_frame.RightBottom.y}, m_frame.LeftTop);
+		if (auto color = m_line->GetColor())
+			if (auto thickness = m_line->GetThickness())
+			{
+				canvas.SetStrokeColor(*color);
+				canvas.SetStrokeWidth(*thickness);
+
+				canvas.DrawLine(topLeft, topRight);
+				canvas.DrawLine(topRight, bottomRight);
+				canvas.DrawLine(bottomRight, bottomLeft);
+				canvas.DrawLine(bottomLeft, topLeft);
+			}
 	}
 }
 
@@ -71,7 +80,6 @@ void Rectangle::RemoveShapeAt(size_t)
 	throw std::out_of_range("Leaf");
 }
 
-// TODO: исправить
 std::unique_ptr<IShape> Rectangle::Clone() const
 {
 	auto clone = std::make_unique<Rectangle>(m_frame);
