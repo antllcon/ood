@@ -1,7 +1,7 @@
-set(MODULES composite)
+set(MODULES common canvas shapes document)
 
 foreach (MODULE ${MODULES})
-    add_subdirectory(libs/${MODULE})
+    add_subdirectory(slide/${MODULE})
 endforeach ()
 
 add_executable(start main.cpp)

@@ -1,111 +1,117 @@
-#include "composite/Common.h"
-#include "composite/Ellipse.h"
-#include "composite/Rectangle.h"
-#include "composite/Slide.h"
-#include "composite/SvgCanvas.h"
-#include "composite/Triangle.h"
+#include "canvas/SvgCanvas.h"
+#include "document/Slide.h"
+#include "shapes/entities/GroupShape.h"
+#include "shapes/entities/Rectangle.h"
 
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
 #include <memory>
-#pragma once
 
-class Triangle;
-class Slide;
-class Ellipse;
+std::shared_ptr<Rectangle> MakeBlock(double x, double y, double w, double h, RgbaColor color)
+{
+	auto rect = std::make_shared<Rectangle>(Frame(x, y, x + w, y + h));
+
+	rect->GetFillStyle()->SetColor(color);
+	rect->GetLineStyle()->Enable(false);
+
+	return rect;
+}
+
+std::shared_ptr<GroupShape> CreateLetterL(double x, double y, const RgbaColor& color)
+{
+	auto group = std::make_shared<GroupShape>();
+	group->AddShape(MakeBlock(x, y, 20, 100, color));
+	group->AddShape(MakeBlock(x, y + 80, 60, 20, color));
+	return group;
+}
+
+std::shared_ptr<GroupShape> CreateLetterO(double x, double y, const RgbaColor& color)
+{
+	auto group = std::make_shared<GroupShape>();
+	group->AddShape(MakeBlock(x, y, 20, 100, color));
+	group->AddShape(MakeBlock(x + 40, y, 20, 100, color));
+	group->AddShape(MakeBlock(x, y, 60, 20, color));
+	group->AddShape(MakeBlock(x, y + 80, 60, 20, color));
+	return group;
+}
+
+std::shared_ptr<GroupShape> CreateLetterV(double x, double y, const RgbaColor& color)
+{
+	auto group = std::make_shared<GroupShape>();
+	group->AddShape(MakeBlock(x, y, 20, 70, color));
+	group->AddShape(MakeBlock(x + 50, y, 20, 70, color));
+	group->AddShape(MakeBlock(x + 10, y + 50, 20, 30, color));
+	group->AddShape(MakeBlock(x + 40, y + 50, 20, 30, color));
+	group->AddShape(MakeBlock(x + 25, y + 80, 20, 20, color));
+	return group;
+}
+
+std::shared_ptr<GroupShape> CreateLetterE(double x, double y, const RgbaColor& color)
+{
+	auto group = std::make_shared<GroupShape>();
+	group->AddShape(MakeBlock(x, y, 20, 100, color));
+	group->AddShape(MakeBlock(x, y, 60, 20, color));
+	group->AddShape(MakeBlock(x, y + 40, 50, 20, color));
+	group->AddShape(MakeBlock(x, y + 80, 60, 20, color));
+	return group;
+}
+
+std::shared_ptr<GroupShape> CreateLetterC(double x, double y, const RgbaColor& color)
+{
+	auto group = std::make_shared<GroupShape>();
+	group->AddShape(MakeBlock(x, y, 20, 100, color));
+	group->AddShape(MakeBlock(x, y, 60, 20, color));
+	group->AddShape(MakeBlock(x, y + 80, 60, 20, color));
+	return group;
+}
+
+std::shared_ptr<GroupShape> CreateLetterP(double x, double y, const RgbaColor& color)
+{
+	auto group = std::make_shared<GroupShape>();
+	group->AddShape(MakeBlock(x, y, 20, 100, color));
+	group->AddShape(MakeBlock(x + 40, y, 20, 60, color));
+	group->AddShape(MakeBlock(x, y, 60, 20, color));
+	group->AddShape(MakeBlock(x, y + 40, 60, 20, color));
+	return group;
+}
+
+void RunSvgDemo()
+{
+	RgbaColor red = {0.9, 0.1, 0.1, 1.0};
+	RgbaColor blue = {0.1, 0.3, 0.8, 1.0};
+	RgbaColor heart = {1.0, 0.4, 0.7, 1.0};
+
+	auto slide = std::make_shared<Slide>();
+
+	auto wordLove = std::make_shared<GroupShape>();
+
+	wordLove->AddShape(CreateLetterL(50, 50, red));
+	wordLove->AddShape(CreateLetterO(130, 50, heart));
+	wordLove->AddShape(CreateLetterV(210, 50, red));
+	wordLove->AddShape(CreateLetterE(290, 50, red));
+
+	auto wordCpp = std::make_shared<GroupShape>();
+
+	wordCpp->AddShape(CreateLetterC(420, 50, blue));
+	wordCpp->AddShape(CreateLetterP(500, 50, blue));
+	wordCpp->AddShape(CreateLetterP(580, 50, blue));
+
+	slide->AddShape(wordLove);
+	slide->AddShape(wordCpp);
+
+	SvgCanvas svgCanvas(700, 200);
+
+	slide->Draw(svgCanvas);
+	svgCanvas.Save("print.svg");
+}
+
 int main()
 {
 	try
 	{
-std::string filename;
-	std::cout << "Enter output filename (e.g., drawing.svg): ";
-	if (!(std::cin >> filename) || filename.empty())
+		RunSvgDemo();
+	}
+	catch (...)
 	{
 		return 1;
 	}
-
-	std::ofstream file(filename);
-	if (!file.is_open())
-	{
-		std::cerr << "Failed to open file for writing." << std::endl;
-		return 1;
-	}
-
-	// Цвета
-	constexpr RgbaColor orange{ 255, 165, 0, 1 };
-	constexpr RgbaColor pink{ 255, 182, 193, 1 };
-	constexpr RgbaColor green{ 0, 128, 0, 1 };
-	constexpr RgbaColor black{ 0, 0, 0, 1 };
-	constexpr RgbaColor white{ 255, 255, 255, 1 };
-
-	auto slide = std::make_unique<Slide>(800, 600);
-	slide->SetBackgroundColor(white);
-
-	// Head
-	auto head = std::make_shared<Ellipse>(Point{ 400, 250 }, 100, 80);
-	head->SetFillStyle(true, orange);
-	head->SetLineStyle(true, black, 2);
-	slide->InsertShape(head);
-
-	// Ears
-	auto leftEar = std::make_shared<Triangle>(Point{ 320, 200 }, Point{ 360, 120 }, Point{ 400, 180 });
-	leftEar->SetFillStyle(true, pink);
-	leftEar->SetLineStyle(true, black, 2);
-	slide->InsertShape(leftEar);
-
-	auto rightEar = std::make_shared<Triangle>(Point{ 480, 200 }, Point{ 440, 120 }, Point{ 400, 180 });
-	rightEar->SetFillStyle(true, pink);
-	rightEar->SetLineStyle(true, black, 2);
-	slide->InsertShape(rightEar);
-
-	// Eyes
-	auto leftEye = std::make_shared<Ellipse>(Point{ 360, 230 }, 15, 20);
-	leftEye->SetFillStyle(true, green);
-	leftEye->SetLineStyle(true, black, 1);
-	slide->InsertShape(leftEye);
-
-	auto rightEye = std::make_shared<Ellipse>(Point{ 440, 230 }, 15, 20);
-	rightEye->SetFillStyle(true, green);
-	rightEye->SetLineStyle(true, black, 1);
-	slide->InsertShape(rightEye);
-
-	// Nose
-	auto nose = std::make_shared<Triangle>(Point{ 390, 270 }, Point{ 410, 270 }, Point{ 400, 290 });
-	nose->SetFillStyle(true, pink);
-	nose->SetLineStyle(true, black, 1);
-	slide->InsertShape(nose);
-
-	// Body
-	auto body = std::make_shared<Rectangle>(350, 330, 450, 500);
-	body->SetFillStyle(true, orange);
-	body->SetLineStyle(true, black, 2);
-	slide->InsertShape(body);
-
-	// Whiskers helper lambda
-	auto createWhisker = [&](double x1, double y1, double x2, double y2) {
-		auto w = std::make_shared<Rectangle>(x1, y1, x2, y2);
-		w->SetFillStyle(false, black);
-		w->SetLineStyle(true, black, 1);
-		slide->InsertShape(w);
-	};
-
-	createWhisker(340, 270, 380, 272);
-	createWhisker(340, 280, 380, 282);
-	createWhisker(420, 270, 460, 272);
-	createWhisker(420, 280, 460, 282);
-
-	{
-		SvgCanvas canvas(file);
-		slide->Draw(canvas);
-	}
-
-	std::cout << "Drawing saved to " << filename << std::endl;
-	}
-	catch (std::exception& e)
-	{
-		std::cerr << "Error: " << e.what() << std::endl;
-	}
-
-	return EXIT_SUCCESS;
+	return 0;
 }
